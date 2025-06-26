@@ -1,12 +1,107 @@
-import React, { useState, useRef } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
-import { ChevronLeft, ChevronRight, Check } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Check, AlertCircle, CheckCircle } from 'lucide-react'
+import { db } from '../db/firebaseConection'
+import { collection, addDoc } from "firebase/firestore"
+import { motion, AnimatePresence } from 'framer-motion'
+
+const SuccessPage = () => {
+    return (
+        <div className="min-h-screen bg-gradient-to-br from-green-50 to-green-100 flex items-center justify-center p-4">
+            <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-8 text-center">
+                <div className="mb-6">
+                    <CheckCircle className="h-16 w-16 text-green-500 mx-auto mb-4" />
+                    <h1 className="text-2xl font-bold text-gray-900 mb-2">
+                        ¡Formulario Enviado!
+                    </h1>
+                    <p className="text-gray-600">
+                        Su formulario ha sido enviado correctamente. Nos pondremos en contacto pronto.
+                    </p>
+                </div>
+                <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                    <p className="text-sm text-green-700">
+                        Gracias por confiar en nosotros. Revisaremos su información y nos comunicaremos con usted a la brevedad.
+                    </p>
+                </div>
+            </div>
+        </div>
+    )
+}
+
+// Componente de alerta mejorado
+const Alert = ({ type = 'info', title, message }) => {
+    const alertConfig = {
+        success: {
+            bg: 'bg-green-50 border-green-200',
+            icon: 'text-green-400',
+            title: 'text-green-800',
+            message: 'text-green-700',
+            IconComponent: CheckCircle
+        },
+        error: {
+            bg: 'bg-red-50 border-red-200',
+            icon: 'text-red-400',
+            title: 'text-red-800',
+            message: 'text-red-700',
+            IconComponent: AlertCircle
+        },
+        warning: {
+            bg: 'bg-yellow-50 border-yellow-200',
+            icon: 'text-yellow-400',
+            title: 'text-yellow-800',
+            message: 'text-yellow-700',
+            IconComponent: AlertCircle
+        },
+        info: {
+            bg: 'bg-blue-50 border-blue-200',
+            icon: 'text-blue-400',
+            title: 'text-blue-800',
+            message: 'text-blue-700',
+            IconComponent: AlertCircle
+        }
+    }
+
+    const { bg, icon, title: titleStyle, message: messageStyle, IconComponent } = alertConfig[type]
+
+    return (
+        <AnimatePresence>
+        <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.3 }}
+            className={`fixed top-4 left-4 right-4 sm:w-full sm:right-4 sm:left-auto z-50 max-w-md  sm:mx-0 ${bg} border rounded-lg p-4 shadow-lg`}
+        >
+            <div className="flex">
+                <div className="flex-shrink-0">
+                    <IconComponent className={`h-5 w-5 ${icon}`} />
+                </div>
+                <div className="ml-3 flex-1">
+                    <h3 className={`text-sm font-medium ${titleStyle}`}>{title}</h3>
+                    <div className={`mt-1 text-sm ${messageStyle}`}>{message}</div>
+                </div>
+            </div>
+        </motion.div>
+    </AnimatePresence>
+    )
+}
 
 const StepsForm = () => {
     const [currentStep, setCurrentStep] = useState(0)
-    const { register, handleSubmit, formState: { errors }, trigger, getValues, setValue } = useForm({
-    })
-    const formRef = useRef(null); // Reference to scroll to
+    const [isSubmitting, setIsSubmitting] = useState(false)
+    const [showSuccessPage, setShowSuccessPage] = useState(false)
+    const [alert, setAlert] = useState(null)
+    const {
+        register,
+        handleSubmit,
+        formState: { errors },
+        trigger,
+        getValues,
+        setValue,
+        reset
+    } = useForm()
+
+    const formRef = useRef(null)
 
     const steps = [
         { id: 0, name: 'Personal', title: 'Información Personal' },
@@ -16,39 +111,37 @@ const StepsForm = () => {
         { id: 4, name: 'Generales', title: 'Información Generales' }
     ]
 
+    const showAlert = (type, title, message, duration = 5000) => {
+        setAlert({ type, title, message })
+        if (duration > 0) {
+            setTimeout(() => setAlert(null), duration)
+        }
+    }
+
     const nextStep = async (e) => {
-        e.preventDefault() // Prevenir el envío del formulario
-        e.stopPropagation()
+        e?.preventDefault()
         const isValid = await trigger(getFieldsForStep(currentStep))
         if (isValid && currentStep < steps.length - 1) {
             setCurrentStep(currentStep + 1)
-            setTimeout(() => {
-                if (formRef.current) {
-                    formRef.current.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'start',
-                        inline: 'nearest'
-                    });
-                }
-            }, 100);
+            scrollToForm()
         }
     }
 
     const prevStep = (e) => {
-        e.preventDefault() // Prevenir el envío del formulario
-        e.stopPropagation()
+        e?.preventDefault()
         if (currentStep > 0) {
             setCurrentStep(currentStep - 1)
-            setTimeout(() => {
-                if (formRef.current) {
-                    formRef.current.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'start',
-                        inline: 'nearest'
-                    });
-                }
-            }, 100);
+            scrollToForm()
         }
+    }
+
+    const scrollToForm = () => {
+        setTimeout(() => {
+            formRef.current?.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+            })
+        }, 100)
     }
 
     const getFieldsForStep = (step) => {
@@ -62,9 +155,56 @@ const StepsForm = () => {
         }
     }
 
-    const onSubmit = (data) => {
-        console.log('Datos del formulario:', data)
-        alert('¡Formulario enviado con éxito!')
+
+    const saveDataToFirebase = async () => {
+        const formData = getValues()
+
+        try {
+            const docRef = await addDoc(collection(db, "clientes"), formData)
+            return { success: true, id: docRef.id }
+        } catch (error) {
+            console.error("Error saving document: ", error)
+            throw new Error('Error al guardar en la base de datos')
+        }
+    }
+
+    const onSubmit = async () => {
+        if (isSubmitting) return
+
+        setIsSubmitting(true)
+        showAlert('info', 'Enviando formulario...', 'Por favor espere...', 0)
+
+        try {
+            // Validación final de todos los campos
+            const isValid = await trigger()
+            if (!isValid) {
+                throw new Error('Por favor complete todos los campos requeridos')
+            }
+
+            const result = await saveDataToFirebase()
+
+
+            setShowSuccessPage(true)
+
+
+            // Resetear formulario después de éxito
+            reset()
+            setCurrentStep(0)
+
+        } catch (error) {
+            console.error('Submission error:', error)
+            showAlert('error',
+                'Error',
+                error.message || 'Ocurrió un error al enviar el formulario. Por favor intente nuevamente.'
+            )
+        } finally {
+            setIsSubmitting(false)
+        }
+    }
+
+    // Si se debe mostrar la página de éxito, renderizarla
+    if (showSuccessPage) {
+        return <SuccessPage />
     }
 
     const renderStepContent = (stepIndex) => {
@@ -1012,6 +1152,14 @@ const StepsForm = () => {
                     ))}
                 </div>
             </div>
+
+            {alert && (
+                <Alert
+                    type={alert.type}
+                    title={alert.title}
+                    message={alert.message}
+                />
+            )}
 
             {/* Form Content */}
             <form onSubmit={handleSubmit(onSubmit)}>
