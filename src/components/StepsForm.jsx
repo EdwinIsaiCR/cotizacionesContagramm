@@ -5,8 +5,6 @@ import { ChevronLeft, ChevronRight, Check } from 'lucide-react'
 const StepsForm = () => {
     const [currentStep, setCurrentStep] = useState(0)
     const { register, handleSubmit, formState: { errors }, trigger, getValues, setValue } = useForm({
-        mode: 'onChange',
-        defaultValues: {} // Asegurar que no hay valores por defecto
     })
     const formRef = useRef(null); // Reference to scroll to
 
@@ -20,38 +18,36 @@ const StepsForm = () => {
 
     const nextStep = async (e) => {
         e.preventDefault() // Prevenir el envío del formulario
-        e.stopPropagation() // Evitar que el evento se propague
-
+        e.stopPropagation()
         const isValid = await trigger(getFieldsForStep(currentStep))
         if (isValid && currentStep < steps.length - 1) {
             setCurrentStep(currentStep + 1)
             setTimeout(() => {
                 if (formRef.current) {
-                  formRef.current.scrollIntoView({ 
-                    behavior: 'smooth', 
-                    block: 'start',
-                    inline: 'nearest'
-                  });
+                    formRef.current.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start',
+                        inline: 'nearest'
+                    });
                 }
-              }, 100);
+            }, 100);
         }
     }
 
     const prevStep = (e) => {
         e.preventDefault() // Prevenir el envío del formulario
-        e.stopPropagation() // Evitar que el evento se propague
-
+        e.stopPropagation()
         if (currentStep > 0) {
             setCurrentStep(currentStep - 1)
             setTimeout(() => {
                 if (formRef.current) {
-                  formRef.current.scrollIntoView({ 
-                    behavior: 'smooth', 
-                    block: 'start',
-                    inline: 'nearest'
-                  });
+                    formRef.current.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start',
+                        inline: 'nearest'
+                    });
                 }
-              }, 100);
+            }, 100);
         }
     }
 
@@ -71,8 +67,8 @@ const StepsForm = () => {
         alert('¡Formulario enviado con éxito!')
     }
 
-    const renderStepContent = () => {
-        switch (currentStep) {
+    const renderStepContent = (stepIndex) => {
+        switch (stepIndex) {
             case 0:
                 return (
                     <div className="space-y-6">
@@ -142,28 +138,25 @@ const StepsForm = () => {
                 return (
                     <div className="space-y-6">
                         <h3 className="text-xl font-semibold text-gray-800 mb-4">Datos de Identificación</h3>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Nombre o Razón social de la empresa: *
-                                </label>
-                                <input
-                                    {...register('empresa', { required: 'El nombre de la empresa es requerido' })}
-                                    className="w-full px-0 pb-2 border-0 border-b-2 border-gray-300 bg-transparent focus:outline-none focus:border-blue-500 focus:ring-0"
-                                    autoComplete="off"
-                                />
-                                {errors.empresa && <p className="text-red-500 text-sm mt-1">{errors.empresa.message}</p>}
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Nombre Comercial: *
-                                </label>
-                                <input
-                                    {...register('comercial', { required: 'El nombre comercial es requerido' })}
-                                    className="w-full px-0 pb-2 border-0 border-b-2 border-gray-300 bg-transparent focus:outline-none focus:border-blue-500 focus:ring-0"
-                                />
-                                {errors.comercial && <p className="text-red-500 text-sm mt-1">{errors.comercial.message}</p>}
-                            </div>
+                        <div>
+                            <label className='block text-sm font-medium text-gray-700 mb-2'>
+                                Nombre o Razon social de la empresa: *
+                            </label>
+                            <input
+                                {...register('empresa', { required: 'El nombre de la empresa es requerido' })}
+                                className="w-full px-0 pb-2 border-0 border-b-2 border-gray-300 bg-transparent focus:outline-none focus:border-blue-500 focus:ring-0"
+                            />
+                            {errors.empresa && <p className="text-red-500 text-sm mt-1">{errors.empresa.message}</p>}
+                        </div>
+                        <div>
+                            <label className='block text-sm font-medium text-gray-700 mb-2'>
+                                Nombre Comercial: *
+                            </label>
+                            <input
+                                {...register('comercial', { required: 'El nombre comercial es requerido' })}
+                                className="w-full px-0 pb-2 border-0 border-b-2 border-gray-300 bg-transparent focus:outline-none focus:border-blue-500 focus:ring-0"
+                            />
+                            {errors.comercial && <p className="text-red-500 text-sm mt-1">{errors.comercial.message}</p>}
                         </div>
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -945,10 +938,10 @@ const StepsForm = () => {
                     {steps.map((step, index) => (
                         <div key={step.id} className="flex items-center flex-1">
                             <div className={`flex items-center justify-center w-10 h-10 rounded-full border-2 ${index < currentStep
-                                    ? 'bg-green-500 border-green-500 text-white'
-                                    : index === currentStep
-                                        ? 'border-blue-500 text-blue-500 bg-blue-50'
-                                        : 'border-gray-300 text-gray-400'
+                                ? 'bg-green-500 border-green-500 text-white'
+                                : index === currentStep
+                                    ? 'border-blue-500 text-blue-500 bg-blue-50'
+                                    : 'border-gray-300 text-gray-400'
                                 }`}>
                                 {index < currentStep ? (
                                     <Check className="w-5 h-5" />
@@ -990,8 +983,8 @@ const StepsForm = () => {
                 {/* Current Step Info */}
                 <div className="text-center">
                     <div className={`inline-flex items-center justify-center w-12 h-12 rounded-full border-2 mb-2 ${currentStep < steps.length
-                            ? 'border-blue-500 text-blue-500 bg-blue-50'
-                            : 'bg-green-500 border-green-500 text-white'
+                        ? 'border-blue-500 text-blue-500 bg-blue-50'
+                        : 'bg-green-500 border-green-500 text-white'
                         }`}>
                         {currentStep >= steps.length ? (
                             <Check className="w-6 h-6" />
@@ -1010,10 +1003,10 @@ const StepsForm = () => {
                         <div
                             key={index}
                             className={`w-2 h-2 rounded-full ${index < currentStep
-                                    ? 'bg-green-500'
-                                    : index === currentStep
-                                        ? 'bg-blue-500'
-                                        : 'bg-gray-300'
+                                ? 'bg-green-500'
+                                : index === currentStep
+                                    ? 'bg-blue-500'
+                                    : 'bg-gray-300'
                                 }`}
                         />
                     ))}
@@ -1023,7 +1016,14 @@ const StepsForm = () => {
             {/* Form Content */}
             <form onSubmit={handleSubmit(onSubmit)}>
                 <div className="bg-white rounded-lg shadow-lg p-8 mb-6">
-                    {renderStepContent()}
+                    {steps.map((step, index) => (
+                        <div
+                            key={step.id}
+                            className={`${currentStep !== index ? 'hidden' : ''}`}
+                        >
+                            {renderStepContent(index)}
+                        </div>
+                    ))}
                 </div>
 
                 {/* Navigation Buttons */}
