@@ -1,0 +1,197 @@
+{
+    "estados": [
+      {
+        "nombre": "Aguascalientes",
+        "nombre_oficial": "Aguascalientes",
+        "clave_inegi": "01",
+        "abreviacion": "AGS"
+      },
+      {
+        "nombre": "Baja California",
+        "nombre_oficial": "Baja California",
+        "clave_inegi": "02",
+        "abreviacion": "BC"
+      },
+      {
+        "nombre": "Baja California Sur",
+        "nombre_oficial": "Baja California Sur",
+        "clave_inegi": "03",
+        "abreviacion": "BCS"
+      },
+      {
+        "nombre": "Campeche",
+        "nombre_oficial": "Campeche",
+        "clave_inegi": "04",
+        "abreviacion": "CAMP"
+      },
+      {
+        "nombre": "Chiapas",
+        "nombre_oficial": "Chiapas",
+        "clave_inegi": "05",
+        "abreviacion": "CHIS"
+      },
+      {
+        "nombre": "Chihuahua",
+        "nombre_oficial": "Chihuahua",
+        "clave_inegi": "06",
+        "abreviacion": "CHIH"
+      },
+      {
+        "nombre": "Ciudad de México",
+        "nombre_oficial": "Ciudad de México",
+        "clave_inegi": "09",
+        "abreviacion": "CDMX"
+      },
+      {
+        "nombre": "Coahuila",
+        "nombre_oficial": "Coahuila de Zaragoza",
+        "clave_inegi": "07",
+        "abreviacion": "COAH"
+      },
+      {
+        "nombre": "Colima",
+        "nombre_oficial": "Colima",
+        "clave_inegi": "08",
+        "abreviacion": "COL"
+      },
+      {
+        "nombre": "Durango",
+        "nombre_oficial": "Durango",
+        "clave_inegi": "10",
+        "abreviacion": "DGO"
+      },
+      {
+        "nombre": "Guanajuato",
+        "nombre_oficial": "Guanajuato",
+        "clave_inegi": "11",
+        "abreviacion": "GTO"
+      },
+      {
+        "nombre": "Guerrero",
+        "nombre_oficial": "Guerrero",
+        "clave_inegi": "12",
+        "abreviacion": "GRO"
+      },
+      {
+        "nombre": "Hidalgo",
+        "nombre_oficial": "Hidalgo",
+        "clave_inegi": "13",
+        "abreviacion": "HGO"
+      },
+      {
+        "nombre": "Jalisco",
+        "nombre_oficial": "Jalisco",
+        "clave_inegi": "14",
+        "abreviacion": "JAL"
+      },
+      {
+        "nombre": "México",
+        "nombre_oficial": "Estado de México",
+        "clave_inegi": "15",
+        "abreviacion": "MEX"
+      },
+      {
+        "nombre": "Michoacán",
+        "nombre_oficial": "Michoacán de Ocampo",
+        "clave_inegi": "16",
+        "abreviacion": "MICH"
+      },
+      {
+        "nombre": "Morelos",
+        "nombre_oficial": "Morelos",
+        "clave_inegi": "17",
+        "abreviacion": "MOR"
+      },
+      {
+        "nombre": "Nayarit",
+        "nombre_oficial": "Nayarit",
+        "clave_inegi": "18",
+        "abreviacion": "NAY"
+      },
+      {
+        "nombre": "Nuevo León",
+        "nombre_oficial": "Nuevo León",
+        "clave_inegi": "19",
+        "abreviacion": "NL"
+      },
+      {
+        "nombre": "Oaxaca",
+        "nombre_oficial": "Oaxaca",
+        "clave_inegi": "20",
+        "abreviacion": "OAX"
+      },
+      {
+        "nombre": "Puebla",
+        "nombre_oficial": "Puebla",
+        "clave_inegi": "21",
+        "abreviacion": "PUE"
+      },
+      {
+        "nombre": "Querétaro",
+        "nombre_oficial": "Querétaro",
+        "clave_inegi": "22",
+        "abreviacion": "QRO"
+      },
+      {
+        "nombre": "Quintana Roo",
+        "nombre_oficial": "Quintana Roo",
+        "clave_inegi": "23",
+        "abreviacion": "QR"
+      },
+      {
+        "nombre": "San Luis Potosí",
+        "nombre_oficial": "San Luis Potosí",
+        "clave_inegi": "24",
+        "abreviacion": "SLP"
+      },
+      {
+        "nombre": "Sinaloa",
+        "nombre_oficial": "Sinaloa",
+        "clave_inegi": "25",
+        "abreviacion": "SIN"
+      },
+      {
+        "nombre": "Sonora",
+        "nombre_oficial": "Sonora",
+        "clave_inegi": "26",
+        "abreviacion": "SON"
+      },
+      {
+        "nombre": "Tabasco",
+        "nombre_oficial": "Tabasco",
+        "clave_inegi": "27",
+        "abreviacion": "TAB"
+      },
+      {
+        "nombre": "Tamaulipas",
+        "nombre_oficial": "Tamaulipas",
+        "clave_inegi": "28",
+        "abreviacion": "TAMPS"
+      },
+      {
+        "nombre": "Tlaxcala",
+        "nombre_oficial": "Tlaxcala",
+        "clave_inegi": "29",
+        "abreviacion": "TLAX"
+      },
+      {
+        "nombre": "Veracruz",
+        "nombre_oficial": "Veracruz de Ignacio de la Llave",
+        "clave_inegi": "30",
+        "abreviacion": "VER"
+      },
+      {
+        "nombre": "Yucatán",
+        "nombre_oficial": "Yucatán",
+        "clave_inegi": "31",
+        "abreviacion": "YUC"
+      },
+      {
+        "nombre": "Zacatecas",
+        "nombre_oficial": "Zacatecas",
+        "clave_inegi": "32",
+        "abreviacion": "ZAC"
+      }
+    ],
+    "total": 32
+  }

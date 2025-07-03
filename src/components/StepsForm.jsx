@@ -4,26 +4,42 @@ import { ChevronLeft, ChevronRight, Check, AlertCircle, CheckCircle } from 'luci
 import { db } from '../db/firebaseConection'
 import { collection, addDoc } from "firebase/firestore"
 import { motion, AnimatePresence } from 'framer-motion'
+import estados from '../db/estados.json'
+import { FaWhatsapp } from 'react-icons/fa';
 
 const SuccessPage = () => {
     return (
-        <div className="min-h-screen bg-gradient-to-br from-green-50 to-green-100 flex items-center justify-center p-4">
-            <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-8 text-center">
-                <div className="mb-6">
-                    <CheckCircle className="h-16 w-16 text-green-500 mx-auto mb-4" />
-                    <h1 className="text-2xl font-bold text-gray-900 mb-2">
-                        ¡Formulario Enviado!
-                    </h1>
-                    <p className="text-gray-600">
-                        Su formulario ha sido enviado correctamente. Nos pondremos en contacto pronto.
-                    </p>
-                </div>
-                <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                    <p className="text-sm text-green-700">
-                        Gracias por confiar en nosotros. Revisaremos su información y nos comunicaremos con usted a la brevedad.
-                    </p>
-                </div>
+        <div className="relative min-h-screen flex flex-col gap-6 items-center justify-center p-4 overflow-hidden">
+            <div
+                className="w-full absolute top-20 left-0 h-[300px] bg-top bg-no-repeat bg-cover -z-10"
+                style={{
+                    backgroundImage: "url('./img/image.png')",
+                }}
+            />
+            <CheckCircle className="h-16 w-16 text-blue-500 mx-auto mb-4" />
+            <div className="max-w-md w-full bg-white rounded-3xl shadow-2xl p-6 text-center">
+                <h1 className='text-2xl font-bold uppercase'
+                    style={{
+                        background: 'linear-gradient(to right, #202282, #47C9FF)',
+                        WebkitBackgroundClip: 'text',
+                        WebkitTextFillColor: 'transparent',
+                        backgroundClip: 'text'
+                    }}>
+                    TU SOLICITUD DE ASESORÍA Y COTIZACIÓN HA SIDO ENVIADA
+                </h1>
             </div>
+            <div className="text-center">
+                <p className="text-gray-700 italic">
+                    Uno de nuestros asesores se pondrá en contacto contigo.
+                </p>
+            </div>
+            <button
+                onClick={() => navigate('/contacto')}
+                className='text-blue-500 text-2xl rounded-2xl p-1 border border-blue-500 w-56 cursor-pointer flex items-center justify-center gap-2 hover:bg-blue-50 transition-colors'
+            >
+                <FaWhatsapp className="w-6 h-6" />
+                Contactar
+            </button>
         </div>
     )
 }
@@ -65,24 +81,24 @@ const Alert = ({ type = 'info', title, message }) => {
 
     return (
         <AnimatePresence>
-        <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.3 }}
-            className={`fixed top-4 left-4 right-4 sm:w-full sm:right-4 sm:left-auto z-50 max-w-md  sm:mx-0 ${bg} border rounded-lg p-4 shadow-lg`}
-        >
-            <div className="flex">
-                <div className="flex-shrink-0">
-                    <IconComponent className={`h-5 w-5 ${icon}`} />
+            <motion.div
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.3 }}
+                className={`fixed top-4 left-4 right-4 sm:w-full sm:right-4 sm:left-auto z-50 max-w-md  sm:mx-0 ${bg} border rounded-lg p-4 shadow-lg`}
+            >
+                <div className="flex">
+                    <div className="flex-shrink-0">
+                        <IconComponent className={`h-5 w-5 ${icon}`} />
+                    </div>
+                    <div className="ml-3 flex-1">
+                        <h3 className={`text-sm font-medium ${titleStyle}`}>{title}</h3>
+                        <div className={`mt-1 text-sm ${messageStyle}`}>{message}</div>
+                    </div>
                 </div>
-                <div className="ml-3 flex-1">
-                    <h3 className={`text-sm font-medium ${titleStyle}`}>{title}</h3>
-                    <div className={`mt-1 text-sm ${messageStyle}`}>{message}</div>
-                </div>
-            </div>
-        </motion.div>
-    </AnimatePresence>
+            </motion.div>
+        </AnimatePresence>
     )
 }
 
@@ -98,13 +114,14 @@ const StepsForm = () => {
         trigger,
         getValues,
         setValue,
+        watch,
         reset
     } = useForm()
 
     const formRef = useRef(null)
 
     const steps = [
-        { id: 0, name: 'Personal', title: 'Información Personal' },
+        { id: 0, name: 'Asesoría', title: 'Información de la Asesoría' },
         { id: 1, name: 'Identificación', title: 'Datos de Identificación' },
         { id: 2, name: 'Contabilidad', title: 'Información Contable' },
         { id: 3, name: 'Laboral', title: 'Información Laboral' },
@@ -119,8 +136,10 @@ const StepsForm = () => {
     }
 
     const nextStep = async (e) => {
+        console.log(getValues())
         e?.preventDefault()
         const isValid = await trigger(getFieldsForStep(currentStep))
+        console.log(isValid)
         if (isValid && currentStep < steps.length - 1) {
             setCurrentStep(currentStep + 1)
             scrollToForm()
@@ -146,10 +165,10 @@ const StepsForm = () => {
 
     const getFieldsForStep = (step) => {
         switch (step) {
-            case 0: return ['nombre', 'telefono', 'servicio', 'residencia']
-            case 1: return ['empresa', 'comercial', 'nombreRepresentanteLegal', 'domicilio', 'telefonoempresa', 'objetoCompania', 'rfc']
-            case 2: return ['cuentasAperturadas', 'tarjetasCredito', 'creditosBancarios', 'clientes', 'proveedores', 'transferencias', 'facturasIngresos', 'facturasProveedores', 'auditado', 'pagosProvisionalesISR', 'pagosProvisionalesIVA', 'pagosProvisionalesInfonavit', 'pagosProvisionalesErogaciones', 'sistemaContabilidad', 'papelesTrabajo', 'personalContabilidad', 'archivoFiscal', 'estadosFinancieros', 'auxiliaresCuentas', 'registroOperaciones', 'sistemaFacturacion']
-            case 3: return ['areaRecursosHumanos', 'numeroEmpleadosIMS', 'pagos', 'registroPatronal', 'expedienteParticular', 'tarjetaControlGeneral', 'expedienteIMSS', 'todoPersonalIMSS', 'registradaFONACOT']
+            case 0: return ['servicios', 'residencia']
+            case 1: return ['nombre', 'telefono', 'email', 'persona', 'representanteLegal', 'domicilio', 'empresa', 'rfc', 'giroEmpresa']
+            case 2: return ['cuentasAperturadas', 'tarjetasCredito', 'numeroTarjetas', 'creditosBancarios', 'facturasIngresos', 'facturasProveedores', 'pagoOportunamente', 'obligacionesFiscales', 'auditoriasPorAutoridades', 'manejarContabilidad', 'sistemaContabilidad', 'otroSistema', 'sistemaFacturacion', 'otroSistemaFacturacion', 'papelesTrabajo']
+            case 3: return ['areaRecursosHumanos', 'todoPersonalIMSS', 'numeroEmpleadosIMS', 'pagos', 'registradaFONACOT']
             case 4: return ['creditoFiscal', 'demandasTrabajadores', 'actividadesVulnerables']
             default: return []
         }
@@ -186,7 +205,7 @@ const StepsForm = () => {
 
             setShowSuccessPage(true)
 
-
+            console.log(getValues())
             // Resetear formulario después de éxito
             reset()
             setCurrentStep(0)
@@ -212,15 +231,68 @@ const StepsForm = () => {
             case 0:
                 return (
                     <div className="space-y-6">
-                        <h3 className="text-xl font-semibold text-gray-800 mb-4">Información Personal</h3>
+                        <h3 className="text-xl font-semibold text-gray-800 mb-4">Información de la Asesoría</h3>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Servicio a cotizar (Puedes marcar más de una) *
+                            </label>
+                            <div className="space-y-2">
+                                {[
+                                    { value: "contabilidad", label: "Contabilidad" },
+                                    { value: "contabilidad_nomina", label: "Contabilidad y Nómina" },
+                                    { value: "nomina_insourcing", label: "Nómina (Insourcing)" },
+                                    { value: "facturacion", label: "Facturación" },
+                                    { value: "auditoria", label: "Auditoría" },
+                                    { value: "revision_contable", label: "Revisión Contable" }
+                                ].map((servicio) => (
+                                    <label key={servicio.value} className="flex items-center">
+                                        <input
+                                            type="checkbox"
+                                            value={servicio.value}
+                                            {...register("servicios", {
+                                                required: "Selecciona al menos un servicio"
+                                            })}
+                                            className="h-4 w-4 text-blue-600 border-gray-300 rounded"
+                                        />
+                                        <span className="ml-2 text-gray-700">{servicio.label}</span>
+                                    </label>
+                                ))}
+                            </div>
+                            {errors.servicios && (
+                                <p className="text-red-500 text-sm mt-1">{errors.servicios.message}</p>
+                            )}
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Lugar de Residencia Actual (Estado) *
+                            </label>
+                            <select
+                                {...register('residencia', { required: 'Selecciona un estado' })}
+                                className="w-full p-2 rounded-3xl text-center border-2 border-blue-200 focus:outline-none focus:border-gray-500 focus:ring-0"
+                            >
+                                <option value="">Seleccionar...</option>
+                                {estados.estados.map((estado) => (
+                                    <option key={estado.clave_inegi} value={estado.nombre}>
+                                        {estado.nombre}
+                                    </option>
+                                ))}
+                            </select>
+                            {errors.residencia && <p className="text-red-500 text-sm mt-1">{errors.residencia.message}</p>}
+                        </div>
+                    </div>
+                )
+            case 1:
+                return (
+                    <div className="space-y-6">
+                        <h3 className="text-xl font-semibold text-gray-800 mb-4">Datos de Identificación</h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Nombre Completo: *
+                                    Nombre del contribuyente: *
                                 </label>
                                 <input
                                     {...register('nombre', { required: 'El nombre es requerido' })}
-                                    className="w-full px-0 pb-2 border-0 border-b-2 border-gray-300 bg-transparent focus:outline-none focus:border-blue-500 focus:ring-0"
+                                    className="w-full px-0 pb-2 border-0 border-b-2 border-blue-200 bg-transparent focus:outline-none focus:border-gray-500 focus:ring-0"
                                 />
                                 {errors.nombre && <p className="text-red-500 text-sm mt-1">{errors.nombre.message}</p>}
                             </div>
@@ -233,116 +305,105 @@ const StepsForm = () => {
                                         required: 'El teléfono es requerido',
                                         pattern: { value: /^[0-9+\-\s()]+$/, message: 'Formato de teléfono inválido' }
                                     })}
-                                    className="w-full px-0 pb-2 border-0 border-b-2 border-gray-300 bg-transparent focus:outline-none focus:border-blue-500 focus:ring-0"
+                                    className="w-full px-0 pb-2 border-0 border-b-2 border-blue-200 bg-transparent focus:outline-none focus:border-gray-500 focus:ring-0"
                                 />
                                 {errors.telefono && <p className="text-red-500 text-sm mt-1">{errors.telefono.message}</p>}
                             </div>
                         </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Servicio a cotizar (Puedes marcar más de una) *
-                                </label>
-                                <select
-                                    {...register('servicio', { required: 'Selecciona un servicio' })}
-                                    className="w-full px-0 pb-2 border-0 border-b-2 border-gray-300 bg-transparent focus:outline-none focus:border-blue-500 focus:ring-0"
-                                >
-                                    <option value="">Seleccionar...</option>
-                                    <option value="curp">CURP</option>
-                                    <option value="rfc">RFC</option>
-                                    <option value="ine">INE</option>
-                                    <option value="pasaporte">Pasaporte</option>
-                                </select>
-                                {errors.servicio && <p className="text-red-500 text-sm mt-1">{errors.servicio.message}</p>}
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Lugar de Residencia Actual (Estado) *
-                                </label>
-                                <select
-                                    {...register('residencia', { required: 'Selecciona un servicio' })}
-                                    className="w-full px-0 pb-2 border-0 border-b-2 border-gray-300 bg-transparent focus:outline-none focus:border-blue-500 focus:ring-0"
-                                >
-                                    <option value="">Seleccionar...</option>
-                                    <option value="curp">Oaxaca</option>
-                                    <option value="rfc">Veracruz</option>
-                                    <option value="ine">Tabasco</option>
-                                    <option value="pasaporte">Chiapas</option>
-                                </select>
-                                {errors.residencia && <p className="text-red-500 text-sm mt-1">{errors.residencia.message}</p>}
-                            </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Correo electrónico: *
+                            </label>
+                            <input
+                                {...register('email', {
+                                    required: 'El email es requerido',
+                                    pattern: { value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/, message: 'Formato de email inválido' }
+                                })}
+                                className="w-full px-0 pb-2 border-0 border-b-2 border-blue-200 bg-transparent focus:outline-none focus:border-gray-500 focus:ring-0"
+                            />
+                            {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>}
                         </div>
-                    </div>
-                )
-            case 1:
-                return (
-                    <div className="space-y-6">
-                        <h3 className="text-xl font-semibold text-gray-800 mb-4">Datos de Identificación</h3>
+                        <div>
+                            <div className="flex items-center space-x-4">
+                                <label className="relative inline-flex items-center cursor-pointer">
+                                    <input
+                                        type="radio"
+                                        value="fisica"
+                                        {...register('persona', { required: 'Esta selección es requerida' })}
+                                        className="sr-only"
+                                    />
+                                    <div className={`w-24 h-8 rounded-full border-2 flex items-center justify-center relative transition-colors duration-200 ${watch('persona') === 'fisica'
+                                        ? 'bg-blue-600 border-blue-600'
+                                        : 'border-blue-300'
+                                        }`}>
+                                        <span className={`text-xs font-medium ${watch('persona') === 'fisica'
+                                            ? 'text-white'
+                                            : 'text-gray-700'
+                                            }`}>
+                                            Persona Física
+                                        </span>
+                                    </div>
+                                </label>
+
+                                <label className="relative inline-flex items-center cursor-pointer">
+                                    <input
+                                        type="radio"
+                                        value="moral"
+                                        {...register('persona')}
+                                        className="sr-only"
+                                    />
+                                    <div className={`w-24 h-8 rounded-full border-2 flex items-center justify-center relative transition-colors duration-200 ${watch('persona') === 'moral'
+                                        ? 'bg-blue-600 border-blue-600'
+                                        : 'border-blue-300'
+                                        }`}>
+                                        <span className={`text-xs font-medium ${watch('persona') === 'moral'
+                                            ? 'text-white'
+                                            : 'text-gray-700'
+                                            }`}>
+                                            Persona Moral
+                                        </span>
+                                    </div>
+                                </label>
+                            </div>
+
+                            {errors.persona && (
+                                <p className="text-red-500 text-sm mt-1">{errors.persona.message}</p>
+                            )}
+
+                            {watch('persona') === 'moral' && (
+                                <div className="mt-4">
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        Representante Legal:*
+                                    </label>
+                                    <input
+                                        {...register('representanteLegal', { required: 'El nombre del representante legal es requerido' })}
+                                        className="w-full px-0 pb-2 border-0 border-b-2 border-blue-200 bg-transparent focus:outline-none focus:border-gray-500 focus:ring-0"
+                                    />
+                                    {errors.representanteLegal && (
+                                        <p className="text-red-500 text-sm mt-1">{errors.representanteLegal.message}</p>
+                                    )}
+                                </div>
+                            )}
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Domicilio
+                            </label>
+                            <input
+                                {...register('domicilio')}
+                                className="w-full px-0 pb-2 border-0 border-b-2 border-blue-200 bg-transparent focus:outline-none focus:border-gray-500 focus:ring-0"
+                            />
+                            {errors.domicilio && <p className="text-red-500 text-sm mt-1">{errors.domicilio.message}</p>}
+                        </div>
                         <div>
                             <label className='block text-sm font-medium text-gray-700 mb-2'>
                                 Nombre o Razon social de la empresa: *
                             </label>
                             <input
                                 {...register('empresa', { required: 'El nombre de la empresa es requerido' })}
-                                className="w-full px-0 pb-2 border-0 border-b-2 border-gray-300 bg-transparent focus:outline-none focus:border-blue-500 focus:ring-0"
+                                className="w-full px-0 pb-2 border-0 border-b-2 border-blue-200 bg-transparent focus:outline-none focus:border-gray-500 focus:ring-0"
                             />
                             {errors.empresa && <p className="text-red-500 text-sm mt-1">{errors.empresa.message}</p>}
-                        </div>
-                        <div>
-                            <label className='block text-sm font-medium text-gray-700 mb-2'>
-                                Nombre Comercial: *
-                            </label>
-                            <input
-                                {...register('comercial', { required: 'El nombre comercial es requerido' })}
-                                className="w-full px-0 pb-2 border-0 border-b-2 border-gray-300 bg-transparent focus:outline-none focus:border-blue-500 focus:ring-0"
-                            />
-                            {errors.comercial && <p className="text-red-500 text-sm mt-1">{errors.comercial.message}</p>}
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Nombre de Representante Legal *
-                            </label>
-                            <input
-                                {...register('nombreRepresentanteLegal', { required: 'El nombre del representante legal es requerido' })}
-                                className="w-full px-0 pb-2 border-0 border-b-2 border-gray-300 bg-transparent focus:outline-none focus:border-blue-500 focus:ring-0"
-                            />
-                            {errors.nombreRepresentanteLegal && <p className="text-red-500 text-sm mt-1">{errors.nombreRepresentanteLegal.message}</p>}
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Domicilio *
-                            </label>
-                            <input
-                                {...register('domicilio', { required: 'El domicilio es requerido' })}
-                                className="w-full px-0 pb-2 border-0 border-b-2 border-gray-300 bg-transparent focus:outline-none focus:border-blue-500 focus:ring-0"
-                            />
-                            {errors.domicilio && <p className="text-red-500 text-sm mt-1">{errors.domicilio.message}</p>}
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Teléfono *
-                            </label>
-                            <input
-                                {...register('telefonoempresa', { required: 'El teléfono es requerido' })}
-                                className="w-full px-0 pb-2 border-0 border-b-2 border-gray-300 bg-transparent focus:outline-none focus:border-blue-500 focus:ring-0"
-                            />
-                            {errors.telefonoempresa && <p className="text-red-500 text-sm mt-1">{errors.telefonoempresa.message}</p>}
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Objeto de la compañía
-                            </label>
-                            <select
-                                {...register('objetoCompania', { required: 'Selecciona un objeto de la compania' })}
-                                className="w-full px-0 pb-2 border-0 border-b-2 border-gray-300 bg-transparent focus:outline-none focus:border-blue-500 focus:ring-0"
-                            >
-                                <option value="">Seleccionar...</option>
-                                <option value="curp">CURP</option>
-                                <option value="rfc">RFC</option>
-                                <option value="ine">INE</option>
-                                <option value="pasaporte">Pasaporte</option>
-                            </select>
-                            {errors.objetoCompania && <p className="text-red-500 text-sm mt-1">{errors.objetoCompania.message}</p>}
                         </div>
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -350,9 +411,19 @@ const StepsForm = () => {
                             </label>
                             <input
                                 {...register('rfc', { required: 'El RFC es requerido' })}
-                                className="w-full px-0 pb-2 border-0 border-b-2 border-gray-300 bg-transparent focus:outline-none focus:border-blue-500 focus:ring-0"
+                                className="w-full px-0 pb-2 border-0 border-b-2 border-blue-200 bg-transparent focus:outline-none focus:border-gray-500 focus:ring-0"
                             />
                             {errors.rfc && <p className="text-red-500 text-sm mt-1">{errors.rfc.message}</p>}
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Giro de la empresa *
+                            </label>
+                            <input
+                                {...register('giroEmpresa', { required: 'El giro de la empresa es requerido' })}
+                                className="w-full px-0 pb-2 border-0 border-b-2 border-blue-200 bg-transparent focus:outline-none focus:border-gray-500 focus:ring-0"
+                            />
+                            {errors.giroEmpresa && <p className="text-red-500 text-sm mt-1">{errors.giroEmpresa.message}</p>}
                         </div>
                     </div>
                 )
@@ -364,394 +435,456 @@ const StepsForm = () => {
                             <label className="block text-sm font-medium text-gray-700 mb-2">
                                 Cuentas aperturadas a nombre de la empresa: *
                             </label>
-                            <input
-                                type="number"
-                                min={0}
-                                {...register('cuentasAperturadas', { required: 'El número de cuentas es requerido' })}
-                                className="w-full px-0 pb-2 border-0 border-b-2 border-gray-300 bg-transparent focus:outline-none focus:border-blue-500 focus:ring-0"
-                            />
+                            <select
+                                {...register('cuentasAperturadas', { required: 'Selecciona una cantidad' })}
+                                className="w-full p-2 rounded-3xl text-center border-2 border-blue-200 focus:outline-none focus:border-gray-500 focus:ring-0"
+                            >
+                                <option value="">Seleccionar...</option>
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="4">4</option>
+                                <option value="+5">+5</option>
+                            </select>
                             {errors.cuentasAperturadas && <p className="text-red-500 text-sm mt-1">{errors.cuentasAperturadas.message}</p>}
                         </div>
                         <div>
+                            {/* Campo original: ¿Manejan Tarjetas de crédito? */}
                             <label className="block text-sm font-medium text-gray-700 mb-2">
                                 ¿Manejan Tarjetas de crédito?:*
                             </label>
                             <div className="flex items-center space-x-4">
-                                <label className="inline-flex items-center">
+                                <label className="relative inline-flex items-center cursor-pointer">
                                     <input
                                         type="radio"
                                         value="si"
                                         {...register('tarjetasCredito', { required: 'Esta selección es requerida' })}
-                                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+                                        className="sr-only"
                                     />
-                                    <span className="ml-2 text-gray-700">Sí</span>
+                                    <div className={`w-16 h-8 rounded-full border-2 flex items-center justify-center relative transition-colors duration-200 ${watch('tarjetasCredito') === 'si'
+                                        ? 'bg-blue-600 border-blue-600'
+                                        : 'border-blue-300'
+                                        }`}>
+                                        <span className={`text-xs font-medium ${watch('tarjetasCredito') === 'si'
+                                            ? 'text-white'
+                                            : 'text-gray-700'
+                                            }`}>
+                                            Sí
+                                        </span>
+                                    </div>
                                 </label>
-                                <label className="inline-flex items-center">
+                                <label className="relative inline-flex items-center cursor-pointer">
                                     <input
                                         type="radio"
                                         value="no"
                                         {...register('tarjetasCredito')}
-                                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+                                        className="sr-only"
                                     />
-                                    <span className="ml-2 text-gray-700">No</span>
+                                    <div className={`w-16 h-8 rounded-full border-2 flex items-center justify-center relative transition-colors duration-200 ${watch('tarjetasCredito') === 'no'
+                                        ? 'bg-blue-600 border-blue-600'
+                                        : 'border-blue-300'
+                                        }`}>
+                                        <span className={`text-xs font-medium ${watch('tarjetasCredito') === 'no'
+                                            ? 'text-white'
+                                            : 'text-gray-700'
+                                            }`}>
+                                            No
+                                        </span>
+                                    </div>
                                 </label>
                             </div>
-                            {errors.tarjetasCredito && <p className="text-red-500 text-sm mt-1">{errors.tarjetasCredito.message}</p>}
+                            {errors.tarjetasCredito && (
+                                <p className="text-red-500 text-sm mt-1">{errors.tarjetasCredito.message}</p>
+                            )}
+
+                            {/* Campo condicional: Número de tarjetas */}
+                            {watch('tarjetasCredito') === 'si' && (
+                                <div className="mt-4">
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        Número de tarjetas de crédito:*
+                                    </label>
+                                    <select
+                                        {...register('numeroTarjetas', {
+                                            required: watch('tarjetasCredito') === 'si' ? 'Este campo es requerido' : false
+                                        })}
+                                        className="w-full p-2 rounded-3xl text-center border-2 border-blue-200 focus:outline-none focus:border-gray-500 focus:ring-0"
+                                    >
+                                        <option value="">Selecciona una opción</option>
+                                        <option value="1">1</option>
+                                        <option value="2">2</option>
+                                        <option value="3">3</option>
+                                        <option value="4">4</option>
+                                        <option value="+5">+5</option>
+                                    </select>
+                                    {errors.numeroTarjetas && (
+                                        <p className="text-red-500 text-sm mt-1">{errors.numeroTarjetas.message}</p>
+                                    )}
+                                </div>
+                            )}
                         </div>
 
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Cuenta la empresa con créditos bancarios, hipotecarios, etc: *
+                                Cuenta la empresa con alguno de los siguiente créditos:*
                             </label>
-                            <div className="flex items-center space-x-4">
-                                <label className="inline-flex items-center">
-                                    <input
-                                        type="radio"
-                                        value="si"
-                                        {...register('creditosBancarios', { required: 'Esta selección es requerida' })}
-                                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
-                                    />
-                                    <span className="ml-2 text-gray-700">Sí</span>
-                                </label>
-                                <label className="inline-flex items-center">
-                                    <input
-                                        type="radio"
-                                        value="no"
-                                        {...register('creditosBancarios')}
-                                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
-                                    />
-                                    <span className="ml-2 text-gray-700">No</span>
-                                </label>
+                            <div className="space-y-2">
+                                {[
+                                    { value: "hipotecario", label: "Hipotecario" },
+                                    { value: "refaccionario", label: "Refaccionario" },
+                                    { value: "revolvente", label: "Revolvente" },
+                                    { value: "ninguno", label: "Ninguno" },
+                                ].map((servicio) => (
+                                    <label key={servicio.value} className="flex items-center">
+                                        <input
+                                            type="checkbox"
+                                            value={servicio.value}
+                                            {...register("creditosBancarios", {
+                                                required: "Selecciona al menos un servicio"
+                                            })}
+                                            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                                        />
+                                        <span className="ml-2 text-gray-700">{servicio.label}</span>
+                                    </label>
+                                ))}
                             </div>
                             {errors.creditosBancarios && <p className="text-red-500 text-sm mt-1">{errors.creditosBancarios.message}</p>}
                         </div>
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Señale el número apróximado de clientes con que cuenta la empresa:
+                                Número de movimientos mensuales de: <strong>Facturas de Ingresos</strong>
                             </label>
-                            <input
-                                type="number"
-                                min={0}
-                                {...register('clientes', { required: 'El numero de clientes es requerido' })}
-                                className="w-full px-0 pb-2 border-0 border-b-2 border-gray-300 bg-transparent focus:outline-none focus:border-blue-500 focus:ring-0"
-                            />
-                            {errors.clientes && <p className="text-red-500 text-sm mt-1">{errors.clientes.message}</p>}
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Indique el número aproximado de los proveedores:
-                            </label>
-                            <input
-                                type="number"
-                                min={0}
-                                {...register('proveedores', { required: 'El numero de proveedores es requerido' })}
-                                className="w-full px-0 pb-2 border-0 border-b-2 border-gray-300 bg-transparent focus:outline-none focus:border-blue-500 focus:ring-0"
-                            />
-                            {errors.proveedores && <p className="text-red-500 text-sm mt-1">{errors.proveedores.message}</p>}
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Señale aproximadamente, movimientos mensuales de: <strong>Transferencias</strong>
-                            </label>
-                            <input
-                                {...register('transferencias', { required: 'El numero de transferencias es requerido' })}
-                                className="w-full px-0 pb-2 border-0 border-b-2 border-gray-300 bg-transparent focus:outline-none focus:border-blue-500 focus:ring-0"
-                            />
-                            {errors.transferencias && <p className="text-red-500 text-sm mt-1">{errors.transferencias.message}</p>}
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Señale aproximadamente, movimientos mensuales de: <strong>Facturas de Ingresos</strong>
-                            </label>
-                            <input
-                                {...register('facturasIngresos', { required: 'El numero de facturas de ingresos es requerido' })}
-                                className="w-full px-0 pb-2 border-0 border-b-2 border-gray-300 bg-transparent focus:outline-none focus:border-blue-500 focus:ring-0"
-                            />
+                            <select
+                                {...register('facturasIngresos', {
+                                    required: 'Este campo es requerido'
+                                })}
+                                className="w-full p-2 rounded-3xl text-center border-2 border-blue-200 focus:outline-none focus:border-gray-500 focus:ring-0"
+                            >
+                                <option value="">Selecciona una opción</option>
+                                <option value="1-30">1-30</option>
+                                <option value="31-60">31-60</option>
+                                <option value="61-100">61-100</option>
+                                <option value="101-150">101-150</option>
+                                <option value="+150">+150</option>
+                            </select>
                             {errors.facturasIngresos && <p className="text-red-500 text-sm mt-1">{errors.facturasIngresos.message}</p>}
                         </div>
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Señale aproximadamente, movimientos mensuales de: <strong>Facturas de Proveedores</strong>
+                                Número de movimientos mensuales de: <strong>Facturas de Proveedores</strong>
                             </label>
-                            <input
-                                {...register('facturasProveedores', { required: 'El numero de facturas de proveedores es requerido' })}
-                                className="w-full px-0 pb-2 border-0 border-b-2 border-gray-300 bg-transparent focus:outline-none focus:border-blue-500 focus:ring-0"
-                            />
+                            <select
+                                {...register('facturasProveedores', {
+                                    required: 'Este campo es requerido'
+                                })}
+                                className="w-full p-2 rounded-3xl text-center border-2 border-blue-200 focus:outline-none focus:border-gray-500 focus:ring-0"
+                            >
+                                <option value="">Selecciona una opción</option>
+                                <option value="1-30">1-30</option>
+                                <option value="31-60">31-60</option>
+                                <option value="61-100">61-100</option>
+                                <option value="101-150">101-150</option>
+                                <option value="+150">+150</option>
+                            </select>
                             {errors.facturasProveedores && <p className="text-red-500 text-sm mt-1">{errors.facturasProveedores.message}</p>}
                         </div>
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-2">
-                                ¿La empresa se ha auditado en ejercicios anteriores?
+                                Presenta oportunamente el pago de sus obligaciones <strong>federales y estatales</strong>
                             </label>
                             <div className="flex items-center space-x-4">
-                                <label className="inline-flex items-center">
+                                <label className="relative inline-flex items-center cursor-pointer">
                                     <input
                                         type="radio"
                                         value="si"
-                                        {...register('auditado', { required: 'Esta selección es requerida' })}
-                                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+                                        {...register('pagoOportunamente', { required: 'Esta selección es requerida' })}
+                                        className="sr-only"
                                     />
-                                    <span className="ml-2 text-gray-700">Sí</span>
+                                    <div className={`w-16 h-8 rounded-full border-2 flex items-center justify-center relative transition-colors duration-200 ${watch('pagoOportunamente') === 'si'
+                                        ? 'bg-blue-600 border-blue-600'
+                                        : 'border-blue-300'
+                                        }`}>
+                                        <span className={`text-xs font-medium ${watch('pagoOportunamente') === 'si'
+                                            ? 'text-white'
+                                            : 'text-gray-700'
+                                            }`}>
+                                            Sí
+                                        </span>
+                                    </div>
                                 </label>
-                                <label className="inline-flex items-center">
+                                <label className="relative inline-flex items-center cursor-pointer">
                                     <input
                                         type="radio"
                                         value="no"
-                                        {...register('auditado')}
-                                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+                                        {...register('pagoOportunamente')}
+                                        className="sr-only"
                                     />
-                                    <span className="ml-2 text-gray-700">No</span>
+                                    <div className={`w-16 h-8 rounded-full border-2 flex items-center justify-center relative transition-colors duration-200 ${watch('pagoOportunamente') === 'no'
+                                        ? 'bg-blue-600 border-blue-600'
+                                        : 'border-blue-300'
+                                        }`}>
+                                        <span className={`text-xs font-medium ${watch('pagoOportunamente') === 'no'
+                                            ? 'text-white'
+                                            : 'text-gray-700'
+                                            }`}>
+                                            No
+                                        </span>
+                                    </div>
                                 </label>
                             </div>
-                            {errors.auditado && <p className="text-red-500 text-sm mt-1">{errors.auditado.message}</p>}
+                            {errors.pagoOportunamente && <p className="text-red-500 text-sm mt-1">{errors.pagoOportunamente.message}</p>}
                         </div>
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-2">
-                                La empresa presenta oportunamente los pagos provisionales del I.S.R.
+                                ¿Conoce cuáles son sus obligaciones fiscales? (Marque las que apliquen) *
                             </label>
-                            <div className="flex items-center space-x-4">
-                                <label className="inline-flex items-center">
-                                    <input
-                                        type="radio"
-                                        value="si"
-                                        {...register('pagosProvisionalesISR', { required: 'Esta selección es requerida' })}
-                                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
-                                    />
-                                    <span className="ml-2 text-gray-700">Sí</span>
-                                </label>
-                                <label className="inline-flex items-center">
-                                    <input
-                                        type="radio"
-                                        value="no"
-                                        {...register('pagosProvisionalesISR')}
-                                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
-                                    />
-                                    <span className="ml-2 text-gray-700">No</span>
-                                </label>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {[
+                                    { value: "ISR", label: "ISR" },
+                                    { value: "IVA", label: "IVA" },
+                                    { value: "IEPS", label: "IEPS" },
+                                    { value: "IMSS", label: "IMSS" },
+                                    { value: "INFONAVIT", label: "INFONAVIT" },
+                                    { value: "EROGACIONES", label: "Erogaciones" },
+                                    { value: "CEDULAR_ARRENDAMIENTO", label: "Cedular de Arrendamiento" },
+                                    { value: "CEDULAR_HOSPEDAJE", label: "Cedular de Hospedaje" },
+                                    { value: "RET_ISR", label: "Ret. de ISR" },
+                                    { value: "RET_IVA", label: "Ret. de IVA" }
+                                ].map((obligacion) => (
+                                    <label key={obligacion.value} className="flex items-center">
+                                        <input
+                                            type="checkbox"
+                                            value={obligacion.value}
+                                            {...register("obligacionesFiscales", {
+                                                required: "Seleccione al menos una opción"
+                                            })}
+                                            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                                        />
+                                        <span className="ml-2 text-gray-700">{obligacion.label}</span>
+                                    </label>
+                                ))}
                             </div>
-                            {errors.pagosProvisionalesISR && <p className="text-red-500 text-sm mt-1">{errors.pagosProvisionalesISR.message}</p>}
+                            {errors.obligacionesFiscales && (
+                                <p className="text-red-500 text-sm mt-1">{errors.obligacionesFiscales.message}</p>
+                            )}
                         </div>
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-2">
-                                La empresa presenta oportunamente los pagos provisionales del I.V.A.
+                                ¿Ha tenido alguna auditoría por parte de las autoridades?
                             </label>
-                            <div className="flex items-center space-x-4">
-                                <label className="inline-flex items-center">
-                                    <input
-                                        type="radio"
-                                        value="si"
-                                        {...register('pagosProvisionalesIVA', { required: 'Esta selección es requerida' })}
-                                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
-                                    />
-                                    <span className="ml-2 text-gray-700">Sí</span>
-                                </label>
-                                <label className="inline-flex items-center">
-                                    <input
-                                        type="radio"
-                                        value="no"
-                                        {...register('pagosProvisionalesIVA')}
-                                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
-                                    />
-                                    <span className="ml-2 text-gray-700">No</span>
-                                </label>
+                            <div className="space-y-2">
+                                {[
+                                    { value: "sat", label: "SAT" },
+                                    { value: "imss", label: "IMSS" },
+                                    { value: "infonavit", label: "INFONAVIT" },
+                                    { value: "finanzas", label: "Finanzas" },
+                                    { value: "ninguna", label: "Ninguna" },
+                                ].map((servicio) => (
+                                    <label key={servicio.value} className="flex items-center">
+                                        <input
+                                            type="checkbox"
+                                            value={servicio.value}
+                                            {...register("auditoriasPorAutoridades", {
+                                                required: "Selecciona al menos un servicio"
+                                            })}
+                                            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                                        />
+                                        <span className="ml-2 text-gray-700">{servicio.label}</span>
+                                    </label>
+                                ))}
                             </div>
-                            {errors.pagosProvisionalesIVA && <p className="text-red-500 text-sm mt-1">{errors.pagosProvisionalesIVA.message}</p>}
+                            {errors.auditoriasPorAutoridades && <p className="text-red-500 text-sm mt-1">{errors.auditoriasPorAutoridades.message}</p>}
                         </div>
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-2">
-                                La empresa presenta oportunamente los pagos provisionales del INFONAVIT E I.M.S.S.
+                                ¿Cómo manejan su contabilidad?*
                             </label>
-                            <div className="flex items-center space-x-4">
-                                <label className="inline-flex items-center">
-                                    <input
-                                        type="radio"
-                                        value="si"
-                                        {...register('pagosProvisionalesInfonavit', { required: 'Esta selección es requerida' })}
-                                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
-                                    />
-                                    <span className="ml-2 text-gray-700">Sí</span>
-                                </label>
-                                <label className="inline-flex items-center">
-                                    <input
-                                        type="radio"
-                                        value="no"
-                                        {...register('pagosProvisionalesInfonavit')}
-                                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
-                                    />
-                                    <span className="ml-2 text-gray-700">No</span>
-                                </label>
-                            </div>
-                            {errors.pagosProvisionalesInfonavit && <p className="text-red-500 text-sm mt-1">{errors.pagosProvisionalesInfonavit.message}</p>}
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                La empresa presenta oportunamente los pagos provisionales de Erogaciones
-                            </label>
-                            <div className="flex items-center space-x-4">
-                                <label className="inline-flex items-center">
-                                    <input
-                                        type="radio"
-                                        value="si"
-                                        {...register('pagosProvisionalesErogaciones', { required: 'Esta selección es requerida' })}
-                                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
-                                    />
-                                    <span className="ml-2 text-gray-700">Sí</span>
-                                </label>
-                                <label className="inline-flex items-center">
-                                    <input
-                                        type="radio"
-                                        value="no"
-                                        {...register('pagosProvisionalesErogaciones')}
-                                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
-                                    />
-                                    <span className="ml-2 text-gray-700">No</span>
-                                </label>
-                            </div>
-                            {errors.pagosProvisionalesErogaciones && <p className="text-red-500 text-sm mt-1">{errors.pagosProvisionalesErogaciones.message}</p>}
+                            <select
+                                {...register('manejarContabilidad', {
+                                    required: 'Este campo es requerido'
+                                })}
+                                className="w-full p-2 rounded-3xl text-center border-2 border-blue-200 focus:outline-none focus:border-gray-500 focus:ring-0"
+                            >
+                                <option value="">Selecciona una opción</option>
+                                <option value="despacho_externo">Despacho externo</option>
+                                <option value="departamento_contable_interno">Departamento contable interno</option>
+                                <option value="administrador_de_mi_propia_contabilidad">Administrador de mi propia contabilidad</option>
+                            </select>
+                            {errors.manejarContabilidad && <p className="text-red-500 text-sm mt-1">{errors.manejarContabilidad.message}</p>}
                         </div>
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-2">
                                 ¿Qué sistema de contabilidad utiliza?
                             </label>
-                            <input
-                                {...register('sistemaContabilidad', { required: 'El sistema de contabilidad es requerido' })}
-                                className="w-full px-0 pb-2 border-0 border-b-2 border-gray-300 bg-transparent focus:outline-none focus:border-blue-500 focus:ring-0"
-                            />
-                            {errors.sistemaContabilidad && <p className="text-red-500 text-sm mt-1">{errors.sistemaContabilidad.message}</p>}
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                ¿Se cuenta con los papeles de trabajo en los que constan los cálculos mensuales o bimestrales de las contribuciones citadas en el punto anterior?
-                            </label>
-                            <div className="flex items-center space-x-4">
-                                <label className="inline-flex items-center">
+                            <div className="space-y-2">
+                                {[
+                                    { value: "contpaqi", label: "CONTPAQi" },
+                                    { value: "aspel_coi", label: "Aspel COI" },
+                                    { value: "contalink", label: "ContaLink" },
+                                ].map((servicio) => (
+                                    <label key={servicio.value} className="flex items-center">
+                                        <input
+                                            type="radio"
+                                            value={servicio.value}
+                                            {...register("sistemaContabilidad", {
+                                                required: "Selecciona al menos un servicio"
+                                            })}
+                                            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                                        />
+                                        <span className="ml-2 text-gray-700">{servicio.label}</span>
+                                    </label>
+                                ))}
+
+                                {/* Opción Otro con input a la derecha */}
+                                <label className="flex items-center">
                                     <input
                                         type="radio"
-                                        value="si"
-                                        {...register('papelesTrabajo', { required: 'Esta selección es requerida' })}
-                                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+                                        value="otro"
+                                        {...register("sistemaContabilidad", {
+                                            required: "Selecciona al menos un servicio"
+                                        })}
+                                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                                     />
-                                    <span className="ml-2 text-gray-700">Sí</span>
-                                </label>
-                                <label className="inline-flex items-center">
+                                    <span className="ml-2 text-gray-700 mr-2">Otro:</span>
                                     <input
-                                        type="radio"
-                                        value="no"
-                                        {...register('papelesTrabajo')}
-                                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+                                        type="text"
+                                        placeholder="Especifica el sistema"
+                                        {...register("otroSistema", {
+                                            validate: (value) =>
+                                                watch("sistemaContabilidad") === "otro"
+                                                    ? value.trim() !== "" || "Especifica el sistema"
+                                                    : true,
+                                        })}
+                                        disabled={watch("sistemaContabilidad") !== "otro"}
+                                        className={`ml-2 w-1/2 text-sm bg-transparent border-0 border-b-2 border-blue-200 ${watch("sistemaContabilidad") === "otro"
+                                            ? "focus:border-gray-300 focus:outline-none focus:ring-0"
+                                            : "border-gray-200 text-gray-400"
+                                            }`}
                                     />
-                                    <span className="ml-2 text-gray-700">No</span>
-                                </label>
-                            </div>
-                            {errors.papelesTrabajo && <p className="text-red-500 text-sm mt-1">{errors.papelesTrabajo.message}</p>}
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                ¿Cómo está integrado el personal que maneja la contabilidad?
-                            </label>
-                            <input
-                                {...register('personalContabilidad', { required: 'El personal de contabilidad es requerido' })}
-                                className="w-full px-0 pb-2 border-0 border-b-2 border-gray-300 bg-transparent focus:outline-none focus:border-blue-500 focus:ring-0"
-                            />
-                            {errors.personalContabilidad && <p className="text-red-500 text-sm mt-1">{errors.personalContabilidad.message}</p>}
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                ¿Cuenta con un archivo fiscal en el que se conserven las declaraciones de los 5 últimos ejercicios?
-                            </label>
-                            <div className="flex items-center space-x-4">
-                                <label className="inline-flex items-center">
-                                    <input
-                                        type="radio"
-                                        value="si"
-                                        {...register('archivoFiscal', { required: 'Esta selección es requerida' })}
-                                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
-                                    />
-                                    <span className="ml-2 text-gray-700">Sí</span>
-                                </label>
-                                <label className="inline-flex items-center">
-                                    <input
-                                        type="radio"
-                                        value="no"
-                                        {...register('archivoFiscal')}
-                                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
-                                    />
-                                    <span className="ml-2 text-gray-700">No</span>
+
                                 </label>
                             </div>
-                            {errors.archivoFiscal && <p className="text-red-500 text-sm mt-1">{errors.archivoFiscal.message}</p>}
+
+                            {errors.sistemaContabilidad && (
+                                <p className="text-red-500 text-sm mt-1">
+                                    {errors.sistemaContabilidad.message}
+                                </p>
+                            )}
+                            {errors.otroSistema && (
+                                <p className="text-red-500 text-sm mt-1">
+                                    {errors.otroSistema.message}
+                                </p>
+                            )}
                         </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                ¿Se preparan periódicamente estados financieros y sus relaciones analíticas?
-                            </label>
-                            <div className="flex items-center space-x-4">
-                                <label className="inline-flex items-center">
-                                    <input
-                                        type="radio"
-                                        value="si"
-                                        {...register('estadosFinancieros', { required: 'Esta selección es requerida' })}
-                                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
-                                    />
-                                    <span className="ml-2 text-gray-700">Sí</span>
-                                </label>
-                                <label className="inline-flex items-center">
-                                    <input
-                                        type="radio"
-                                        value="no"
-                                        {...register('estadosFinancieros')}
-                                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
-                                    />
-                                    <span className="ml-2 text-gray-700">No</span>
-                                </label>
-                            </div>
-                            {errors.estadosFinancieros && <p className="text-red-500 text-sm mt-1">{errors.estadosFinancieros.message}</p>}
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                ¿Se cuenta con los auxiliares de cuentas de balance y de resultados?
-                            </label>
-                            <div className="flex items-center space-x-4">
-                                <label className="inline-flex items-center">
-                                    <input
-                                        type="radio"
-                                        value="si"
-                                        {...register('auxiliaresCuentas', { required: 'Esta selección es requerida' })}
-                                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
-                                    />
-                                    <span className="ml-2 text-gray-700">Sí</span>
-                                </label>
-                                <label className="inline-flex items-center">
-                                    <input
-                                        type="radio"
-                                        value="no"
-                                        {...register('auxiliaresCuentas')}
-                                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
-                                    />
-                                    <span className="ml-2 text-gray-700">No</span>
-                                </label>
-                            </div>
-                            {errors.auxiliaresCuentas && <p className="text-red-500 text-sm mt-1">{errors.auxiliaresCuentas.message}</p>}
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                ¿El registro de operaciones se realiza dentro de la empresa o en el despacho que presta el servicio?
-                            </label>
-                            <input
-                                {...register('registroOperaciones', { required: 'El registro de operaciones es requerido' })}
-                                className="w-full px-0 pb-2 border-0 border-b-2 border-gray-300 bg-transparent focus:outline-none focus:border-blue-500 focus:ring-0"
-                            />
-                            {errors.registroOperaciones && <p className="text-red-500 text-sm mt-1">{errors.registroOperaciones.message}</p>}
-                        </div>
+
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-2">
                                 ¿Qué sistema de facturación opera la empresa?
                             </label>
-                            <input
-                                {...register('sistemaFacturacion', { required: 'El sistema de facturación es requerido' })}
-                                className="w-full px-0 pb-2 border-0 border-b-2 border-gray-300 bg-transparent focus:outline-none focus:border-blue-500 focus:ring-0"
-                            />
-                            {errors.sistemaFacturacion && <p className="text-red-500 text-sm mt-1">{errors.sistemaFacturacion.message}</p>}
+                            <div className="space-y-2">
+                                {[
+                                    { value: "contpaqi", label: "CONTPAQi" },
+                                    { value: "aspel_coi", label: "Aspel COI" },
+                                    { value: "contalink", label: "ContaLink" },
+                                ].map((servicio) => (
+                                    <label key={servicio.value} className="flex items-center">
+                                        <input
+                                            type="radio"
+                                            value={servicio.value}
+                                            {...register("sistemaFacturacion", {
+                                                required: "Selecciona al menos un servicio"
+                                            })}
+                                            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                                        />
+                                        <span className="ml-2 text-gray-700">{servicio.label}</span>
+                                    </label>
+                                ))}
+
+                                {/* Opción Otro con input a la derecha */}
+                                <label className="flex items-center">
+                                    <input
+                                        type="radio"
+                                        value="otro"
+                                        {...register("sistemaFacturacion", {
+                                            required: "Selecciona al menos un servicio"
+                                        })}
+                                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                                    />
+                                    <span className="ml-2 text-gray-700 mr-2">Otro:</span>
+                                    <input
+                                        type="text"
+                                        placeholder="Especifica el sistema"
+                                        {...register("otroSistemaFacturacion", {
+                                            validate: (value) =>
+                                                watch("sistemaFacturacion") === "otro"
+                                                    ? value.trim() !== "" || "Especifica el sistema"
+                                                    : true,
+                                        })}
+                                        disabled={watch("sistemaFacturacion") !== "otro"}
+                                        className={`ml-2 w-1/2 text-sm bg-transparent border-0 border-b-2 border-blue-200 ${watch("sistemaFacturacion") === "otro"
+                                            ? "focus:border-gray-300 focus:outline-none focus:ring-0"
+                                            : "border-gray-200 text-gray-400"
+                                            }`}
+                                    />
+
+                                </label>
+                            </div>
+
+                            {errors.sistemaFacturacion && (
+                                <p className="text-red-500 text-sm mt-1">
+                                    {errors.sistemaFacturacion.message}
+                                </p>
+                            )}
+                            {errors.otroSistemaFacturacion && (
+                                <p className="text-red-500 text-sm mt-1">
+                                    {errors.otroSistemaFacturacion.message}
+                                </p>
+                            )}
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Tiene papeles de trabajo donde conste los cálculos de las contribuciones a los que se encuentra obligado
+                            </label>
+                            <div className="flex items-center space-x-4">
+                                <label className="relative inline-flex items-center cursor-pointer">
+                                    <input
+                                        type="radio"
+                                        value="si"
+                                        {...register('papelesTrabajo', { required: 'Esta selección es requerida' })}
+                                        className="sr-only"
+                                    />
+                                    <div className={`w-16 h-8 rounded-full border-2 flex items-center justify-center relative transition-colors duration-200 ${watch('papelesTrabajo') === 'si'
+                                        ? 'bg-blue-600 border-blue-600'
+                                        : 'border-blue-300'
+                                        }`}>
+                                        <span className={`text-xs font-medium ${watch('papelesTrabajo') === 'si'
+                                            ? 'text-white'
+                                            : 'text-gray-700'
+                                            }`}>
+                                            Sí
+                                        </span>
+                                    </div>
+                                </label>
+                                <label className="relative inline-flex items-center cursor-pointer">
+                                    <input
+                                        type="radio"
+                                        value="no"
+                                        {...register('papelesTrabajo')}
+                                        className="sr-only"
+                                    />
+                                    <div className={`w-16 h-8 rounded-full border-2 flex items-center justify-center relative transition-colors duration-200 ${watch('papelesTrabajo') === 'no'
+                                        ? 'bg-blue-600 border-blue-600'
+                                        : 'border-blue-300'
+                                        }`}>
+                                        <span className={`text-xs font-medium ${watch('papelesTrabajo') === 'no'
+                                            ? 'text-white'
+                                            : 'text-gray-700'
+                                            }`}>
+                                            No
+                                        </span>
+                                    </div>
+                                </label>
+                            </div>
+                            {errors.papelesTrabajo && <p className="text-red-500 text-sm mt-1">{errors.papelesTrabajo.message}</p>}
                         </div>
                     </div>
                 )
@@ -764,203 +897,172 @@ const StepsForm = () => {
                                 ¿Cuenta con área de recursos humanos?
                             </label>
                             <div className="flex items-center space-x-4">
-                                <label className="inline-flex items-center">
+                                <label className="relative inline-flex items-center cursor-pointer">
                                     <input
                                         type="radio"
                                         value="si"
                                         {...register('areaRecursosHumanos', { required: 'Esta selección es requerida' })}
-                                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+                                        className="sr-only"
                                     />
-                                    <span className="ml-2 text-gray-700">Sí</span>
+                                    <div className={`w-16 h-8 rounded-full border-2 flex items-center justify-center relative transition-colors duration-200 ${watch('areaRecursosHumanos') === 'si'
+                                        ? 'bg-blue-600 border-blue-600'
+                                        : 'border-blue-300'
+                                        }`}>
+                                        <span className={`text-xs font-medium ${watch('areaRecursosHumanos') === 'si'
+                                            ? 'text-white'
+                                            : 'text-gray-700'
+                                            }`}>
+                                            Sí
+                                        </span>
+                                    </div>
                                 </label>
-                                <label className="inline-flex items-center">
+                                <label className="relative inline-flex items-center cursor-pointer">
                                     <input
                                         type="radio"
                                         value="no"
                                         {...register('areaRecursosHumanos')}
-                                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+                                        className="sr-only"
                                     />
-                                    <span className="ml-2 text-gray-700">No</span>
+                                    <div className={`w-16 h-8 rounded-full border-2 flex items-center justify-center relative transition-colors duration-200 ${watch('areaRecursosHumanos') === 'no'
+                                        ? 'bg-blue-600 border-blue-600'
+                                        : 'border-blue-300'
+                                        }`}>
+                                        <span className={`text-xs font-medium ${watch('areaRecursosHumanos') === 'no'
+                                            ? 'text-white'
+                                            : 'text-gray-700'
+                                            }`}>
+                                            No
+                                        </span>
+                                    </div>
                                 </label>
+                                {errors.areaRecursosHumanos && <p className="text-red-500 text-sm mt-1">{errors.areaRecursosHumanos.message}</p>}
                             </div>
-                            {errors.areaRecursosHumanos && <p className="text-red-500 text-sm mt-1">{errors.areaRecursosHumanos.message}</p>}
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Número de empleados inscritos en el I.M.S.S.
-                            </label>
-                            <input
-                                type="number"
-                                min="0"
-                                {...register('numeroEmpleadosIMS', { required: 'El número de empleados es requerido' })}
-                                className="w-full px-0 pb-2 border-0 border-b-2 border-gray-300 bg-transparent focus:outline-none focus:border-blue-500 focus:ring-0"
-                            />
-                            {errors.numeroEmpleadosIMS && <p className="text-red-500 text-sm mt-1">{errors.numeroEmpleadosIMS.message}</p>}
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Los pagos por concepto de sueldos y salarios se realizan semanalmente o quincenalmente
-                            </label>
-                            <div className="flex items-center space-x-4">
-                                <label className="inline-flex items-center">
-                                    <input
-                                        type="radio"
-                                        value="semanalmente"
-                                        {...register('pagos', { required: 'Esta selección es requerida' })}
-                                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
-                                    />
-                                    <span className="ml-2 text-gray-700">Semanalmente</span>
-                                </label>
-                                <label className="inline-flex items-center">
-                                    <input
-                                        type="radio"
-                                        value="quincenalmente"
-                                        {...register('pagos')}
-                                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
-                                    />
-                                    <span className="ml-2 text-gray-700">Quincenalmente</span>
-                                </label>
-                            </div>
-                            {errors.pagos && <p className="text-red-500 text-sm mt-1">{errors.pagos.message}</p>}
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Registro (s) Patronal (es)
-                            </label>
-                            <input
-                                type="number"
-                                min="0"
-                                {...register('registroPatronal', { required: 'El registro patronal es requerido' })}
-                                className="w-full px-0 pb-2 border-0 border-b-2 border-gray-300 bg-transparent focus:outline-none focus:border-blue-500 focus:ring-0"
-                            />
-                            {errors.registroPatronal && <p className="text-red-500 text-sm mt-1">{errors.registroPatronal.message}</p>}
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                ¿Se cuenta con expediente particular de los trabajadores?
-                            </label>
-                            <div className="flex items-center space-x-4">
-                                <label className="inline-flex items-center">
-                                    <input
-                                        type="radio"
-                                        value="si"
-                                        {...register('expedienteParticular', { required: 'Esta selección es requerida' })}
-                                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
-                                    />
-                                    <span className="ml-2 text-gray-700">Sí</span>
-                                </label>
-                                <label className="inline-flex items-center">
-                                    <input
-                                        type="radio"
-                                        value="no"
-                                        {...register('expedienteParticular')}
-                                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
-                                    />
-                                    <span className="ml-2 text-gray-700">No</span>
-                                </label>
-                            </div>
-                            {errors.expedienteParticular && <p className="text-red-500 text-sm mt-1">{errors.expedienteParticular.message}</p>}
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                ¿Se cuenta con alguna tarjeta de control general que permita identificar la antigüedad de cada uno de los trabajadores?
-                            </label>
-                            <div className="flex items-center space-x-4">
-                                <label className="inline-flex items-center">
-                                    <input
-                                        type="radio"
-                                        value="si"
-                                        {...register('tarjetaControlGeneral', { required: 'Esta selección es requerida' })}
-                                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
-                                    />
-                                    <span className="ml-2 text-gray-700">Sí</span>
-                                </label>
-                                <label className="inline-flex items-center">
-                                    <input
-                                        type="radio"
-                                        value="no"
-                                        {...register('tarjetaControlGeneral')}
-                                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
-                                    />
-                                    <span className="ml-2 text-gray-700">No</span>
-                                </label>
-                            </div>
-                            {errors.tarjetaControlGeneral && <p className="text-red-500 text-sm mt-1">{errors.tarjetaControlGeneral.message}</p>}
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                La empresa cuenta con expediente del IMSS que contenga liquidaciones mensuales, bimestrales, sipares, comprobantes de pago de cuotas, incapacidades, etc.
-                            </label>
-                            <div className="flex items-center space-x-4">
-                                <label className="inline-flex items-center">
-                                    <input
-                                        type="radio"
-                                        value="si"
-                                        {...register('expedienteIMSS', { required: 'Esta selección es requerida' })}
-                                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
-                                    />
-                                    <span className="ml-2 text-gray-700">Sí</span>
-                                </label>
-                                <label className="inline-flex items-center">
-                                    <input
-                                        type="radio"
-                                        value="no"
-                                        {...register('expedienteIMSS')}
-                                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
-                                    />
-                                    <span className="ml-2 text-gray-700">No</span>
-                                </label>
-                            </div>
-                            {errors.expedienteIMSS && <p className="text-red-500 text-sm mt-1">{errors.expedienteIMSS.message}</p>}
                         </div>
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-2">
                                 Todo el personal se encuentra inscrito en el IMSS
                             </label>
                             <div className="flex items-center space-x-4">
-                                <label className="inline-flex items-center">
+                                <label className="relative inline-flex items-center cursor-pointer">
                                     <input
                                         type="radio"
                                         value="si"
                                         {...register('todoPersonalIMSS', { required: 'Esta selección es requerida' })}
-                                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+                                        className="sr-only"
                                     />
-                                    <span className="ml-2 text-gray-700">Sí</span>
+                                    <div className={`w-16 h-8 rounded-full border-2 flex items-center justify-center relative transition-colors duration-200 ${watch('todoPersonalIMSS') === 'si'
+                                        ? 'bg-blue-600 border-blue-600'
+                                        : 'border-blue-300'
+                                        }`}>
+                                        <span className={`text-xs font-medium ${watch('todoPersonalIMSS') === 'si'
+                                            ? 'text-white'
+                                            : 'text-gray-700'
+                                            }`}>
+                                            Sí
+                                        </span>
+                                    </div>
                                 </label>
-                                <label className="inline-flex items-center">
+                                <label className="relative inline-flex items-center cursor-pointer">
                                     <input
                                         type="radio"
                                         value="no"
                                         {...register('todoPersonalIMSS')}
-                                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+                                        className="sr-only"
                                     />
-                                    <span className="ml-2 text-gray-700">No</span>
+                                    <div className={`w-16 h-8 rounded-full border-2 flex items-center justify-center relative transition-colors duration-200 ${watch('todoPersonalIMSS') === 'no'
+                                        ? 'bg-blue-600 border-blue-600'
+                                        : 'border-blue-300'
+                                        }`}>
+                                        <span className={`text-xs font-medium ${watch('todoPersonalIMSS') === 'no'
+                                            ? 'text-white'
+                                            : 'text-gray-700'
+                                            }`}>
+                                            No
+                                        </span>
+                                    </div>
                                 </label>
                             </div>
                             {errors.todoPersonalIMSS && <p className="text-red-500 text-sm mt-1">{errors.todoPersonalIMSS.message}</p>}
                         </div>
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Se encuentra la empresa registrada en el FONACOT
+                                Número de empleados inscritos en el I.M.S.S.
+                            </label>
+                            <select
+                                {...register('numeroEmpleadosIMS', {
+                                    required: 'Este campo es requerido'
+                                })}
+                                className="w-full p-2 rounded-3xl text-center border-2 border-blue-200 focus:outline-none focus:border-gray-500 focus:ring-0"
+                            >
+                                <option value="">Selecciona una opción</option>
+                                <option value="1-10">1-10</option>
+                                <option value="11-20">11-20</option>
+                                <option value="21-35">21-35</option>
+                                <option value="35-50">35-50</option>
+                                <option value="+50">+50</option>
+                                <option value="+100">+100</option>
+                            </select>
+                            {errors.numeroEmpleadosIMS && <p className="text-red-500 text-sm mt-1">{errors.numeroEmpleadosIMS.message}</p>}
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Efectúa pagos de nomina
+                            </label>
+                            <select
+                                {...register('pagos', {
+                                    required: 'Este campo es requerido'
+                                })}
+                                className="w-full p-2 rounded-3xl text-center border-2 border-blue-200 focus:outline-none focus:border-gray-500 focus:ring-0"
+                            >
+                                <option value="">Selecciona una opción</option>
+                                <option value="semanalmente">Semanalmente</option>
+                                <option value="quincenalmente">Quincenalmente</option>
+                                <option value="catorcenal">Catorcenal</option>
+                            </select>
+                            {errors.pagos && <p className="text-red-500 text-sm mt-1">{errors.pagos.message}</p>}
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                ¿Cuénta con registro FONACOT?
                             </label>
                             <div className="flex items-center space-x-4">
-                                <label className="inline-flex items-center">
+                                <label className="relative inline-flex items-center cursor-pointer">
                                     <input
                                         type="radio"
                                         value="si"
                                         {...register('registradaFONACOT', { required: 'Esta selección es requerida' })}
-                                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+                                        className="sr-only"
                                     />
-                                    <span className="ml-2 text-gray-700">Sí</span>
+                                    <div className={`w-16 h-8 rounded-full border-2 flex items-center justify-center relative transition-colors duration-200 ${watch('registradaFONACOT') === 'si'
+                                        ? 'bg-blue-600 border-blue-600'
+                                        : 'border-blue-300'
+                                        }`}>
+                                        <span className={`text-xs font-medium ${watch('registradaFONACOT') === 'si'
+                                            ? 'text-white'
+                                            : 'text-gray-700'
+                                            }`}>
+                                            Sí
+                                        </span>
+                                    </div>
                                 </label>
-                                <label className="inline-flex items-center">
+                                <label className="relative inline-flex items-center cursor-pointer">
                                     <input
                                         type="radio"
                                         value="no"
                                         {...register('registradaFONACOT')}
-                                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+                                        className="sr-only"
                                     />
-                                    <span className="ml-2 text-gray-700">No</span>
+                                    <div className={`w-16 h-8 rounded-full border-2 flex items-center justify-center relative transition-colors duration-200 ${watch('registradaFONACOT') === 'no'
+                                        ? 'bg-blue-600 border-blue-600'
+                                        : 'border-blue-300'
+                                        }`}>
+                                        <span className={`text-xs font-medium ${watch('registradaFONACOT') === 'no'
+                                            ? 'text-white'
+                                            : 'text-gray-700'
+                                            }`}>
+                                            No
+                                        </span>
+                                    </div>
                                 </label>
                             </div>
                             {errors.registradaFONACOT && <p className="text-red-500 text-sm mt-1">{errors.registradaFONACOT.message}</p>}
@@ -976,23 +1078,43 @@ const StepsForm = () => {
                                 ¿Actualmente la empresa tiene créditos fiscales o revisiones por parte de alguna autoridad o dependencia? (IMSS, INFONAVIT, SECRETARIA DE FINANZAS, ETC)
                             </label>
                             <div className="flex items-center space-x-4">
-                                <label className="inline-flex items-center">
+                                <label className="relative inline-flex items-center cursor-pointer">
                                     <input
                                         type="radio"
                                         value="si"
                                         {...register('creditoFiscal', { required: 'Esta selección es requerida' })}
-                                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+                                        className="sr-only"
                                     />
-                                    <span className="ml-2 text-gray-700">Sí</span>
+                                    <div className={`w-16 h-8 rounded-full border-2 flex items-center justify-center relative transition-colors duration-200 ${watch('creditoFiscal') === 'si'
+                                        ? 'bg-blue-600 border-blue-600'
+                                        : 'border-blue-300'
+                                        }`}>
+                                        <span className={`text-xs font-medium ${watch('creditoFiscal') === 'si'
+                                            ? 'text-white'
+                                            : 'text-gray-700'
+                                            }`}>
+                                            Sí
+                                        </span>
+                                    </div>
                                 </label>
-                                <label className="inline-flex items-center">
+                                <label className="relative inline-flex items-center cursor-pointer">
                                     <input
                                         type="radio"
                                         value="no"
                                         {...register('creditoFiscal')}
-                                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+                                        className="sr-only"
                                     />
-                                    <span className="ml-2 text-gray-700">No</span>
+                                    <div className={`w-16 h-8 rounded-full border-2 flex items-center justify-center relative transition-colors duration-200 ${watch('creditoFiscal') === 'no'
+                                        ? 'bg-blue-600 border-blue-600'
+                                        : 'border-blue-300'
+                                        }`}>
+                                        <span className={`text-xs font-medium ${watch('creditoFiscal') === 'no'
+                                            ? 'text-white'
+                                            : 'text-gray-700'
+                                            }`}>
+                                            No
+                                        </span>
+                                    </div>
                                 </label>
                             </div>
                             {errors.creditoFiscal && <p className="text-red-500 text-sm mt-1">{errors.creditoFiscal.message}</p>}
@@ -1002,23 +1124,43 @@ const StepsForm = () => {
                                 ¿Cuenta con alguna demanda de algún trabajador?
                             </label>
                             <div className="flex items-center space-x-4">
-                                <label className="inline-flex items-center">
+                                <label className="relative inline-flex items-center cursor-pointer">
                                     <input
                                         type="radio"
                                         value="si"
                                         {...register('demandasTrabajadores', { required: 'Esta selección es requerida' })}
-                                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+                                        className="sr-only"
                                     />
-                                    <span className="ml-2 text-gray-700">Si</span>
+                                    <div className={`w-16 h-8 rounded-full border-2 flex items-center justify-center relative transition-colors duration-200 ${watch('demandasTrabajadores') === 'si'
+                                        ? 'bg-blue-600 border-blue-600'
+                                        : 'border-blue-300'
+                                        }`}>
+                                        <span className={`text-xs font-medium ${watch('demandasTrabajadores') === 'si'
+                                            ? 'text-white'
+                                            : 'text-gray-700'
+                                            }`}>
+                                            Sí
+                                        </span>
+                                    </div>
                                 </label>
-                                <label className="inline-flex items-center">
+                                <label className="relative inline-flex items-center cursor-pointer">
                                     <input
                                         type="radio"
                                         value="no"
                                         {...register('demandasTrabajadores')}
-                                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+                                        className="sr-only"
                                     />
-                                    <span className="ml-2 text-gray-700">No</span>
+                                    <div className={`w-16 h-8 rounded-full border-2 flex items-center justify-center relative transition-colors duration-200 ${watch('demandasTrabajadores') === 'no'
+                                        ? 'bg-blue-600 border-blue-600'
+                                        : 'border-blue-300'
+                                        }`}>
+                                        <span className={`text-xs font-medium ${watch('demandasTrabajadores') === 'no'
+                                            ? 'text-white'
+                                            : 'text-gray-700'
+                                            }`}>
+                                            No
+                                        </span>
+                                    </div>
                                 </label>
                             </div>
                             {errors.demandasTrabajadores && <p className="text-red-500 text-sm mt-1">{errors.demandasTrabajadores.message}</p>}
@@ -1028,23 +1170,43 @@ const StepsForm = () => {
                                 Realiza Actividades consideradas como vulnerables según la LFPIORPI
                             </label>
                             <div className="flex items-center space-x-4">
-                                <label className="inline-flex items-center">
+                                <label className="relative inline-flex items-center cursor-pointer">
                                     <input
                                         type="radio"
                                         value="si"
                                         {...register('actividadesVulnerables', { required: 'Esta selección es requerida' })}
-                                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+                                        className="sr-only"
                                     />
-                                    <span className="ml-2 text-gray-700">Sí</span>
+                                    <div className={`w-16 h-8 rounded-full border-2 flex items-center justify-center relative transition-colors duration-200 ${watch('actividadesVulnerables') === 'si'
+                                        ? 'bg-blue-600 border-blue-600'
+                                        : 'border-blue-300'
+                                        }`}>
+                                        <span className={`text-xs font-medium ${watch('actividadesVulnerables') === 'si'
+                                            ? 'text-white'
+                                            : 'text-gray-700'
+                                            }`}>
+                                            Sí
+                                        </span>
+                                    </div>
                                 </label>
-                                <label className="inline-flex items-center">
+                                <label className="relative inline-flex items-center cursor-pointer">
                                     <input
                                         type="radio"
                                         value="no"
                                         {...register('actividadesVulnerables')}
-                                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+                                        className="sr-only"
                                     />
-                                    <span className="ml-2 text-gray-700">No</span>
+                                    <div className={`w-16 h-8 rounded-full border-2 flex items-center justify-center relative transition-colors duration-200 ${watch('actividadesVulnerables') === 'no'
+                                        ? 'bg-blue-600 border-blue-600'
+                                        : 'border-blue-300'
+                                        }`}>
+                                        <span className={`text-xs font-medium ${watch('actividadesVulnerables') === 'no'
+                                            ? 'text-white'
+                                            : 'text-gray-700'
+                                            }`}>
+                                            No
+                                        </span>
+                                    </div>
                                 </label>
                             </div>
                             {errors.actividadesVulnerables && <p className="text-red-500 text-sm mt-1">{errors.actividadesVulnerables.message}</p>}
