@@ -6,8 +6,16 @@ import { collection, addDoc } from "firebase/firestore"
 import { motion, AnimatePresence } from 'framer-motion'
 import estados from '../db/estados.json'
 import { FaWhatsapp } from 'react-icons/fa';
+import Swal from 'sweetalert2';
 
 const SuccessPage = () => {
+    const handleWhatsAppClick = () => {
+        const phoneNumber = '529515095970';
+        const message = encodeURIComponent('Hola, me gustaría recibir más información sobre sus servicios de asesoría.');
+        const whatsappUrl = `https://wa.me/${phoneNumber}?text=${message}`;
+        window.open(whatsappUrl, '_blank');
+    };
+
     return (
         <div className="relative min-h-screen flex flex-col gap-6 items-center justify-center p-4 overflow-hidden">
             <div
@@ -34,7 +42,7 @@ const SuccessPage = () => {
                 </p>
             </div>
             <button
-                onClick={() => navigate('/contacto')}
+                onClick={handleWhatsAppClick}
                 className='text-blue-500 text-2xl rounded-2xl p-1 border border-blue-500 w-56 cursor-pointer flex items-center justify-center gap-2 hover:bg-blue-50 transition-colors'
             >
                 <FaWhatsapp className="w-6 h-6" />
@@ -101,6 +109,174 @@ const Alert = ({ type = 'info', title, message }) => {
         </AnimatePresence>
     )
 }
+
+const politicasPrivacidad = `
+<div style="font-family: 'Arial', sans-serif; color: #333;">
+  
+  <p class="mb-6 text-justify">
+      En cumplimiento al deber de resguardo de información y de datos personales
+      y con fundamento en los dispuesto por los artículos 3 fracción I, 8, 12,
+      15, 16 y demás relativos de la Ley Federal de Protección de Datos
+      Personales en Posesión de Particulares, CONSULTING & MANAGEMENT RESOURCE
+      S.C pone a su disposición el presente Aviso de Privacidad.
+    </p>
+    <strong class="block mb-2 mt-6"
+      >IDENTIDAD Y DOMICILIO DEL RESPONSABLE DE LA PROTECCIÓN DE DATOS
+      PERSONALES</strong
+    >
+    <p class="mb-6 text-justify">
+      CONSULTING & MANAGEMENT RESOURCE S.C, con nombre comercial CONTAGRAMM,
+      ubicado en Jazmines 20. Fracc. Jardines de las Lomas, Loc. Montoya, Oaxaca
+      de Juárez, México, Oaxaca de Juárez, México, es el responsable del uso y
+      protección de los datos personales que nos proporcione.
+    </p>
+    <strong class="block mb-2 mt-6">DATOS PERSONALES UTILIZADOS</strong>
+    <p class="mb-6 text-justify">
+      Para llevar a cabo las finalidades descritas en este Aviso de Privacidad,
+      haremos uso de los siguientes datos personales:
+    </p>
+    <ul class="custom-list mb-6 text-justify list-disc list-inside ml-6">
+      <li>
+        Datos de contacto (número telefónico, correo electrónico y nombre
+        completo)
+      </li>
+      <li>Datos de identificación</li>
+      <li>Datos de facturación</li>
+      <li>Datos fiscales</li>
+    </ul>
+    <strong class="block mb-2 mt-6"
+      >FINALIDADES DEL TRATAMIENTO DE DATOS PERSONALES</strong
+    >
+    <p class="mb-6 text-justify">
+      Utilizaremos los datos recabados para las siguientes finalidades, que son
+      necesarias para el servicio solicitado:
+    </p>
+    <ul class="custom-list mb-6 text-justify list-disc list-inside ml-6">
+      <li>Finalidad de contacto, aclaraciones y comunicación</li>
+      <li>Finalidad de facturación y cobro</li>
+      <li>Finalidad de entrega de servicios</li>
+      <li>Finalidad de establecer una relación comercial</li>
+    </ul>
+    <p class="mb-6 text-justify">
+      De manera adicional, utilizaremos su información personal para las
+      siguientes finalidades, que no son necesarias para el servicio solicitado,
+      pero que nos permite y facilitan brindarle una mejor atención:
+    </p>
+    <ul class="custom-list mb-6 text-justify list-disc list-inside ml-6">
+      <li>Finalidad de enviar información promocional</li>
+      <li>Finalidad de realizar encuestas de satisfacción</li>
+    </ul>
+    <strong class="block mb-2 mt-6"
+      >TRANFERENCIAS DE DATOS QUE SE EFECTÚEN</strong
+    >
+    <p class="mb-6 text-justify">
+      No compartiremos sus datos personales con terceros, salvo por
+      requerimientos legales. Los datos serán utilizados exclusivamente para los
+      fines señalados en este Aviso de Privacidad.
+    </p>
+    <strong class="block mb-2 mt-6"
+      >MEDIOS PARA EJERCER LOS DERECHOS DE ACCESO, RECTIFICACIÓN, CANCELACIÓN U
+      OPOSICIÓN (ARCO)</strong
+    >
+    <ol class="custom-list-number mb-6 text-justify list-decimal list-inside ml-6">
+      <li>
+        Acceso: Usted tiene derecho a solicitar y obtener información sobre sus
+        datos personales que tenemos almacenados. Puede pedir una copia de los
+        datos que hemos recopilado sobre usted.
+      </li>
+      <li>
+        Rectificación: Si considera que su información personal es incorrecta o
+        incompleta, puede solicitar la corrección de sus datos. Nos
+        comprometemos a corregir cualquier información incorrecta o a completar
+        cualquier dato que esté incompleto.
+      </li>
+      <li>
+        Cancelación: En ciertos casos, puede solicitar la eliminación de sus
+        datos personales cuando considere que no son necesarios para los fines
+        para los que fueron recopilados. Cumpliremos con su solicitud en los
+        términos establecidos por la ley, excepto cuando sea necesario conservar
+        la información por obligaciones legales.
+      </li>
+      <li>
+        Oposición: Usted puede oponerse al tratamiento de sus datos personales
+        por motivos legítimos. Si se opone, dejaremos de procesar sus datos,
+        salvo que existan razones legales para continuar con el tratamiento.
+      </li>
+    </ol>
+
+    <p class="mb-6 text-justify">
+      A continuación, proporcionaremos los datos de contacto del departamento
+      encargado de gestionar las solicitudes relacionadas con los derechos ARCO:
+    </p>
+    <p class="mb-6 text-justify">
+      Nombre: Departamento de Ventas y comercialización<br />
+      Domicilio: Jazmines 20. Fracc. Jardines de las Lomas, Loc. Montoya, Oaxaca
+      de Juárez, México, Oaxaca de Juárez, México<br />
+      Teléfono: 951 509 59 70<br />
+      Correo electrónico: <a
+        href="mailto:contacto@contagramm.com"
+        class="text-blue-500">contacto@contagramm.com</a
+      >
+    </p>
+    <p class="mb-6 text-justify">
+      Si desea ejercer los derechos de acceso, rectificación, cancelación u
+      oposición del tratamiento de sus datos personales o limitar su
+      divulgación, puede presentar la solicitud respectiva a través del
+      siguiente correo electrónico:
+    </p>
+    <a href="mailto:contacto@contagramm.com" class="block mb-6 text-blue-500"
+      >contacto@contagramm.com</a
+    >
+    <p class="mb-6 text-justify">
+      La respuesta a su solicitud será comunicada de la siguiente manera: correo
+      electrónico, llamada telefónica y/o mensaje de texto.
+    </p>
+    <p class="mb-6 text-justify">
+      El plazo para brindar respuesta a su solicitud será el siguiente: 5 días.
+    </p>
+    <strong class="block mb-2 mt-6"
+      >OPCIONES Y MEDIOS QUE EL RESPONSABLE OFREZCA A LOS TITULARES PARA LIMITAR
+      EL USO O DIVULGACIÓN DE LOS DATOS</strong
+    >
+    <p class="mb-6 text-justify">
+      Si desea revocar el consentimiento otorgado para el tratamiento de sus
+      datos personales o limitar su divulgación, puede presentar la solicitud
+      respectiva a través del siguiente correo electrónico:
+    </p>
+    <a href="mailto:contacto@contagramm.com" class="block mb-6 text-blue-500"
+      >contacto@contagramm.com</a
+    >
+    <p class="mb-6 text-justify">
+      La comunicación de la respuesta a la solicitud de revocación o limitación
+      de divulgación de sus datos se llevará a cabo de la siguiente forma:
+      correo electrónico, llamada telefónica y/o mensaje de texto.
+    </p>
+    <p class="mb-6 text-justify">
+      La respuesta a la solicitud de revocación o limitación de divulgación de
+      sus datos se proporcionará en un plazo máximo de 5 días.
+    </p>
+    <strong class="block mb-2 mt-6">CAMBIOS AL AVISO DE PRIVACIDAD</strong>
+    <p class="mb-6 text-justify">
+      Nos reservamos el derecho de actualizar esta Política de Privacidad en
+      cualquier momento. Cualquier cambio significativo será notificado a través
+      de:
+    </p>
+    <p class="mb-6 text-justify">
+      • Nuestro sitio web (<a
+        href="https://contagramm.net/"
+        class="text-blue-500">https://contagramm.net/</a
+      >)
+    </p>
+    <p class="mb-6 text-justify">
+      Usted puede solicitar información sobre si el mismo ha sufrido algún
+      cambio a través del siguiente correo electrónico:
+    </p>
+    <a href="mailto:contacto@contagramm.com" class="block mb-6 text-blue-500"
+      >contacto@contagramm.com</a
+    >
+    <p class="mb-6 text-right">Ultima actualización: 15 de Marzo de 2025.</p>
+</div>
+`;
 
 const StepsForm = () => {
     const [currentStep, setCurrentStep] = useState(0)
@@ -174,6 +350,267 @@ const StepsForm = () => {
         }
     }
 
+    const showPoliciesModal = async () => {
+        const scrollPosition = window.scrollY;
+        // Common configuration for both modals with enhanced responsiveness
+        const modalConfig = (title, content, defaultWidth) => {
+            // Determine width based on screen size - more granular breakpoints
+            let width;
+            if (window.innerWidth < 480) {
+                width = '95%'; // Mobile phones
+            } else if (window.innerWidth < 768) {
+                width = '90%'; // Tablets
+            } else if (window.innerWidth < 1024) {
+                width = '80%'; // Small laptops
+            } else {
+                width = defaultWidth; // Larger screens
+            }
+
+            // Adjust font size based on screen width
+            const titleFontSize = window.innerWidth < 480 ? '20px' : '24px';
+            const contentFontSize = window.innerWidth < 480 ? '14px' : '16px';
+
+            // Adjust max-height based on viewport to ensure it fits on smaller screens
+            const maxHeight = window.innerHeight < 600 ? '40vh' : '50vh';
+
+            // Adjust scroll container based on mobile browsers
+            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            const scrollStyle = isMobile ?
+                `-webkit-overflow-scrolling: touch; overflow-y: auto; overflow-x: hidden; transform: translateZ(0);` :
+                `overflow-y: auto; overflow-x: hidden;`;
+
+            return {
+                title: `<span style="color: #29A1EC; font-size: ${titleFontSize};">${title}</span>`,
+                html: `
+                  <div class="scroll-container" style="
+                      max-height: ${maxHeight};
+                      ${scrollStyle}
+                      padding-right: 10px;
+                      text-align: left;
+                      position: relative;
+                      font-size: ${contentFontSize};
+                  ">
+                      <div class="content-wrapper">
+                          ${content.replace('max-height: 350px; overflow-y: auto;', '')}
+                          <div class="end-marker" style="
+                              height: 2px;
+                              background: transparent;
+                              margin: 20px 0;
+                          "></div>
+                      </div>
+                  </div>
+              `,
+                width: width,
+                padding: window.innerWidth < 480 ? '10px' : (window.innerWidth < 768 ? '15px' : '25px'),
+                background: '#ffffff',
+                showCancelButton: true,
+                confirmButtonText: 'Aceptar y Continuar',
+                cancelButtonText: 'Cancelar',
+                confirmButtonColor: '#29A1EC',
+                scrollbarPadding: false, // Evita que SweetAlert ajuste el padding
+                focusConfirm: false, // Evita el enfoque automático que puede causar desplazamiento
+                cancelButtonColor: '#6c757d',
+                allowOutsideClick: false,
+                customClass: {
+                    popup: 'rounded-modal',
+                    title: 'modal-title',
+                    confirmButton: 'confirm-btn',
+                    cancelButton: 'cancel-btn',
+                    actions: window.innerWidth < 480 ? 'stacked-buttons' : '', // Stack buttons on small screens
+                    container: 'responsive-container'
+                },
+                didOpen: (popup) => {
+                    // Fix for Safari and Edge mobile scroll
+                    const fixMobileScroll = () => {
+                        const scrollContainer = document.querySelector('.scroll-container');
+                        if (scrollContainer) {
+                            scrollContainer.scrollTop = 0;
+                            // Prevent default touch behavior only on the scroll container
+                            scrollContainer.addEventListener('touchmove', function (e) {
+                                // Allow the default scrolling to happen within this container
+                                e.stopPropagation();
+                            }, { passive: false });
+
+
+                            // Specifically for iOS Safari
+                            if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+                                scrollContainer.style.webkitOverflowScrolling = 'touch';
+                                // Add momentum-based scrolling specifically for iOS
+                                const style = document.createElement('style');
+                                style.textContent = `
+                                  .scroll-container::-webkit-scrollbar {
+                                      -webkit-appearance: none;
+                                      width: 7px;
+                                  }
+                                  .scroll-container::-webkit-scrollbar-thumb {
+                                      border-radius: 4px;
+                                      background-color: rgba(0, 0, 0, .3);
+                                  }
+                              `;
+                                document.head.appendChild(style);
+                            }
+                        }
+                    };
+
+                    // Add CSS for responsive buttons
+                    if (window.innerWidth < 480) {
+                        const style = document.createElement('style');
+                        style.innerHTML = `
+                          .stacked-buttons {
+                              flex-direction: column !important;
+                              gap: 10px !important;
+                          }
+                          .stacked-buttons .confirm-btn,
+                          .stacked-buttons .cancel-btn {
+                              margin: 0 !important;
+                              width: 100% !important;
+                          }
+                      `;
+                        document.head.appendChild(style);
+                    }
+
+                    const confirmBtn = Swal.getConfirmButton();
+                    confirmBtn.disabled = true;
+                    confirmBtn.style.opacity = '0.5';
+                    confirmBtn.style.cursor = 'not-allowed';
+
+                    const scrollContainer = document.querySelector('.scroll-container');
+                    const endMarker = document.querySelector('.end-marker');
+                    const contentWrapper = document.querySelector('.content-wrapper');
+
+                    // Apply mobile scroll fixes
+                    fixMobileScroll();
+
+                    if (scrollContainer && endMarker) {
+                        let wasAtBottom = false;
+
+                        const checkScroll = () => {
+                            const containerBottom = scrollContainer.getBoundingClientRect().bottom;
+                            const endMarkerTop = endMarker.getBoundingClientRect().top;
+                            const tolerance = 15;
+
+                            const isAtBottom = endMarkerTop <= containerBottom + tolerance;
+
+                            if (isAtBottom) {
+                                confirmBtn.disabled = false;
+                                confirmBtn.style.opacity = '1';
+                                confirmBtn.style.cursor = 'pointer';
+                                wasAtBottom = true;
+
+                                endMarker.style.background = '#29A1EC';
+                            } else if (wasAtBottom) {
+                                confirmBtn.disabled = true;
+                                confirmBtn.style.opacity = '0.5';
+                                confirmBtn.style.cursor = 'not-allowed';
+
+                                endMarker.style.background = 'transparent';
+                            }
+                        };
+
+                        if (contentWrapper.scrollHeight <= scrollContainer.clientHeight) {
+                            confirmBtn.disabled = false;
+                            confirmBtn.style.opacity = '1';
+                            confirmBtn.style.cursor = 'pointer';
+                            endMarker.style.background = '#29A1EC';
+                        } else {
+                            // For iOS and other mobile browsers, we need to use both scroll and touchmove events
+                            scrollContainer.addEventListener('scroll', checkScroll);
+                            scrollContainer.addEventListener('touchmove', checkScroll);
+                            scrollContainer.addEventListener('touchend', checkScroll);
+
+                            // Add resize event listener to handle orientation changes
+                            const resizeObserver = new ResizeObserver(() => {
+                                checkScroll();
+                            });
+
+                            resizeObserver.observe(scrollContainer);
+
+                        }
+
+                        checkScroll();
+                    }
+                }
+            };
+        };
+
+        // CSS to ensure policies content is responsive
+        const injectResponsiveStyles = () => {
+            const style = document.createElement('style');
+            style.textContent = `
+              @media (max-width: 480px) {
+                  /* For mobile phones */
+                  .rounded-modal {
+                      font-size: 14px !important;
+                  }
+                  .modal-title {
+                      font-size: 18px !important;
+                  }
+                  
+                  /* Make lists more compact on mobile */
+                  .scroll-container ul, .scroll-container ol {
+                      padding-left: 15px !important;
+                  }
+                  .scroll-container li {
+                      margin-bottom: 5px !important;
+                  }
+                  
+                  /* Mobile scroll fixes */
+                  .scroll-container {
+                      -webkit-overflow-scrolling: touch !important;
+                      overflow-y: auto !important;
+                      transform: translateZ(0) !important;
+                      touch-action: pan-y !important;
+                  }
+              }
+              
+              /* For all screen sizes - ensure content is responsive */
+              .responsive-container {
+                  max-width: 100vw !important;
+              }
+              
+              /* Ensure tables are responsive if they exist in content */
+              .scroll-container table {
+                  width: 100% !important;
+                  display: block;
+                  overflow-x: auto;
+              }
+              
+              /* Additional scrolling fix for iOS */
+              html.swal2-shown,
+              body.swal2-shown {
+                  overflow: hidden !important;
+                  position: fixed !important;
+                  width: 100% !important;
+              }
+          `;
+            document.head.appendChild(style);
+        };
+
+        // Inject responsive styles
+        injectResponsiveStyles();
+
+        // Modify the policies content to be more responsive
+        const makeContentResponsive = (content) => {
+            return content
+                // Replace fixed width values with percentages or responsive units
+                .replace(/width:\s*\d+px/g, 'width: 100%')
+                // Ensure padding is reasonable on mobile
+                .replace(/padding:\s*(\d+)px/g, (match, p1) => {
+                    const value = parseInt(p1);
+                    return `padding: min(${value}px, 5%)`;
+                });
+        };
+
+        const privacidadResult = await Swal.fire(
+            modalConfig('Política de Privacidad', makeContentResponsive(politicasPrivacidad), '800px')
+        );
+
+        // Restaurar la posición de scroll después de cerrar los modales
+        window.scrollTo(0, scrollPosition);
+
+        return privacidadResult.isConfirmed;
+    };
+
 
     const saveDataToFirebase = async () => {
         const formData = getValues()
@@ -202,6 +639,16 @@ const StepsForm = () => {
 
             const result = await saveDataToFirebase()
 
+            const policiesAccepted = await showPoliciesModal();
+            document.body.style.overflow = '';
+            if (!policiesAccepted) {
+                showAlert('error',
+                    'Error',
+                    'Debes aceptar nuestras políticas de asesoría y privacidad para continuar.'
+                )
+                setIsSubmitting(false)
+                return;
+            }
 
             setShowSuccessPage(true)
 
