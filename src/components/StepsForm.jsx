@@ -614,10 +614,14 @@ const StepsForm = () => {
 
     const saveDataToFirebase = async () => {
         const formData = getValues()
+        const fecha = new Date()
+        const aceptoPol = true
+        formData.fecha = fecha
+        formData.aceptoPol = aceptoPol
 
         try {
             const docRef = await addDoc(collection(db, "clientes"), formData)
-            return { success: true, id: docRef.id }
+            return { success: true, id: docRef.id}
         } catch (error) {
             console.error("Error saving document: ", error)
             throw new Error('Error al guardar en la base de datos')
