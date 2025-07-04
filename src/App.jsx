@@ -10,7 +10,7 @@ function App() {
     <Router>
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/asesorias" element={ <ProtectedRoute isAllowed={false} redirectPath="/" children={<StepsForm />} /> } />
+        <Route path="/asesorias" element={ <ProtectedRoute isAllowed={true} redirectPath="/" children={<StepsForm />} /> } />
         <Route path='/cotizaciones' element={<ProtectedRoute isAllowed={true} redirectPath="/" children={<Cotizaciones/>}/>}/>
       </Routes>
     </Router>

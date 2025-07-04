@@ -10,7 +10,7 @@ const Home = () => {
     return (
         <div className='principal'>
             <Header/>
-            <main className="p-8 flex flex-col gap-8 text-center">
+            <main className="py-8 md:px-96 px-6 flex flex-col gap-8 text-center">
                 <div className='flex flex-col gap-2'>
                     <h1 className='text-2xl font-bold'
                         style={{
@@ -29,7 +29,7 @@ const Home = () => {
                     </p>
                 </div>
 
-                <div className="w-screen relative left-1/2 right-1/2 -ml-[52vw] -mr-[52vw] -mt-20 -mb-12">
+                <div className="relative w-full max-w-[1200px] mx-auto -mt-20 -mb-12">
                     <img 
                         src="./img/imagenInicio.png" 
                         alt="Imagen 1" 
@@ -37,7 +37,7 @@ const Home = () => {
                     />
                 </div>
                 
-                <div>
+                <div className="flex justify-center">
                     <button 
                         onClick={() => navigate('/asesorias')} 
                         className='text-white text-2xl p-5 rounded-2xl w-80 hover:opacity-90 transition-opacity cursor-pointer flex items-center justify-center gap-3' 

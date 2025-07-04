@@ -19,35 +19,44 @@ const SuccessPage = () => {
     return (
         <div className="relative min-h-screen flex flex-col gap-6 items-center justify-center p-4 overflow-hidden">
             <div
-                className="w-full absolute top-20 left-0 h-[300px] bg-top bg-no-repeat bg-cover -z-10"
+                className="w-full absolute top-0 left-0 md:h-full h-[400px] bg-top bg-no-repeat bg-cover -z-10"
                 style={{
-                    backgroundImage: "url('./img/image.png')",
+                    backgroundImage: "url('./img/fondo.png')",
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center'
                 }}
             />
-            <CheckCircle className="h-16 w-16 text-blue-500 mx-auto mb-4" />
-            <div className="max-w-md w-full bg-white rounded-3xl shadow-2xl p-6 text-center">
-                <h1 className='text-2xl font-bold uppercase'
-                    style={{
-                        background: 'linear-gradient(to right, #202282, #47C9FF)',
-                        WebkitBackgroundClip: 'text',
-                        WebkitTextFillColor: 'transparent',
-                        backgroundClip: 'text'
-                    }}>
-                    TU SOLICITUD DE ASESORÍA Y COTIZACIÓN HA SIDO ENVIADA
-                </h1>
+            
+            {/* Contenido principal con márgenes en pantallas grandes */}
+            <div className="max-w-4xl w-full mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center">
+                <CheckCircle className="h-20 w-20 text-blue-500 mx-auto mb-6" />
+                
+                <div className="max-w-2xl w-full bg-white rounded-3xl shadow-2xl p-8 text-center">
+                    <h1 className='text-2xl sm:text-3xl font-bold uppercase'
+                        style={{
+                            background: 'linear-gradient(to right, #202282, #47C9FF)',
+                            WebkitBackgroundClip: 'text',
+                            WebkitTextFillColor: 'transparent',
+                            backgroundClip: 'text'
+                        }}>
+                        TU SOLICITUD DE ASESORÍA Y COTIZACIÓN HA SIDO ENVIADA
+                    </h1>
+                </div>
+                
+                <div className="text-center mt-6 max-w-xl">
+                    <p className="text-gray-700 italic text-lg">
+                        Uno de nuestros asesores se pondrá en contacto contigo.
+                    </p>
+                </div>
+                
+                <button
+                    onClick={handleWhatsAppClick}
+                    className='text-blue-500 text-xl sm:text-2xl rounded-2xl py-3 px-6 border-2 border-blue-500 w-full sm:w-64 cursor-pointer flex items-center justify-center gap-3 hover:bg-blue-50 transition-colors mt-8'
+                >
+                    <FaWhatsapp className="w-6 h-6" />
+                    Contactar
+                </button>
             </div>
-            <div className="text-center">
-                <p className="text-gray-700 italic">
-                    Uno de nuestros asesores se pondrá en contacto contigo.
-                </p>
-            </div>
-            <button
-                onClick={handleWhatsAppClick}
-                className='text-blue-500 text-2xl rounded-2xl p-1 border border-blue-500 w-56 cursor-pointer flex items-center justify-center gap-2 hover:bg-blue-50 transition-colors'
-            >
-                <FaWhatsapp className="w-6 h-6" />
-                Contactar
-            </button>
         </div>
     )
 }
