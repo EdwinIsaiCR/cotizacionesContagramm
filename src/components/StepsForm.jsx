@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import estados from '../db/estados.json'
 import { FaWhatsapp } from 'react-icons/fa';
 import Swal from 'sweetalert2';
+import { useWatch } from "react-hook-form";
 
 const SuccessPage = () => {
     const handleWhatsAppClick = () => {
@@ -26,11 +27,11 @@ const SuccessPage = () => {
                     backgroundPosition: 'center'
                 }}
             />
-            
+
             {/* Contenido principal con márgenes en pantallas grandes */}
             <div className="max-w-4xl w-full mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center">
                 <CheckCircle className="h-20 w-20 text-blue-500 mx-auto mb-6" />
-                
+
                 <div className="max-w-2xl w-full bg-white rounded-3xl shadow-2xl p-8 text-center">
                     <h1 className='text-2xl sm:text-3xl font-bold uppercase'
                         style={{
@@ -42,13 +43,13 @@ const SuccessPage = () => {
                         TU SOLICITUD DE ASESORÍA Y COTIZACIÓN HA SIDO ENVIADA
                     </h1>
                 </div>
-                
+
                 <div className="text-center mt-6 max-w-xl">
                     <p className="text-gray-700 italic text-lg">
                         Uno de nuestros asesores se pondrá en contacto contigo.
                     </p>
                 </div>
-                
+
                 <button
                     onClick={handleWhatsAppClick}
                     className='text-blue-500 text-xl sm:text-2xl rounded-2xl py-3 px-6 border-2 border-blue-500 w-full sm:w-64 cursor-pointer flex items-center justify-center gap-3 hover:bg-blue-50 transition-colors mt-8'
@@ -300,7 +301,8 @@ const StepsForm = () => {
         getValues,
         setValue,
         watch,
-        reset
+        reset,
+        control
     } = useForm()
 
     const formRef = useRef(null)
@@ -358,6 +360,41 @@ const StepsForm = () => {
             default: return []
         }
     }
+
+    const watchedValues = watch("auditoriasPorAutoridades");
+
+    // Registrar el campo para validación pero sin usar register en el input
+    useEffect(() => {
+        register("auditoriasPorAutoridades", {
+            required: "Selecciona al menos un servicio"
+        });
+    }, [register]);
+
+    const handleChange = (e) => {
+        const { value, checked } = e.target;
+        let currentValues = watchedValues || [];
+
+        console.log("has seleccionado", value, "checked:", checked);
+
+        if (value === "ninguna") {
+            if (checked) {
+                setValue("auditoriasPorAutoridades", ["ninguna"]);
+            } else {
+                setValue("auditoriasPorAutoridades", []);
+            }
+        } else {
+            if (checked) {
+                // Remover "ninguna" y agregar la nueva opción
+                const newValues = currentValues.filter(v => v !== "ninguna");
+                newValues.push(value);
+                setValue("auditoriasPorAutoridades", newValues);
+            } else {
+                // Remover la opción deseleccionada
+                const newValues = currentValues.filter(v => v !== value);
+                setValue("auditoriasPorAutoridades", newValues);
+            }
+        }
+    };
 
     const showPoliciesModal = async () => {
         const scrollPosition = window.scrollY;
@@ -630,7 +667,7 @@ const StepsForm = () => {
 
         try {
             const docRef = await addDoc(collection(db, "clientes"), formData)
-            return { success: true, id: docRef.id}
+            return { success: true, id: docRef.id }
         } catch (error) {
             console.error("Error saving document: ", error)
             throw new Error('Error al guardar en la base de datos')
@@ -1143,16 +1180,19 @@ const StepsForm = () => {
                                         <input
                                             type="checkbox"
                                             value={servicio.value}
-                                            {...register("auditoriasPorAutoridades", {
-                                                required: "Selecciona al menos un servicio"
-                                            })}
+                                            checked={watchedValues?.includes(servicio.value) || false}
+                                            onChange={handleChange}
                                             className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                                         />
                                         <span className="ml-2 text-gray-700">{servicio.label}</span>
                                     </label>
                                 ))}
                             </div>
-                            {errors.auditoriasPorAutoridades && <p className="text-red-500 text-sm mt-1">{errors.auditoriasPorAutoridades.message}</p>}
+                            {errors.auditoriasPorAutoridades && (
+                                <p className="text-red-500 text-sm mt-1">
+                                    {errors.auditoriasPorAutoridades.message}
+                                </p>
+                            )}
                         </div>
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-2">

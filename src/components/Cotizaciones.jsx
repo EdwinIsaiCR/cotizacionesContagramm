@@ -12,8 +12,16 @@ const Cotizaciones = () => {
             id: doc.id,
             ...doc.data(),
         }));
-        console.log(docs)
-        setClientes(docs);
+    
+        // Ordenar por fecha (de más reciente a más antigua)
+        const sortedDocs = docs.sort((a, b) => {
+            // Convertir las fechas de Firestore a timestamps para comparar
+            const dateA = a.fecha?.toDate ? a.fecha.toDate().getTime() : 0;
+            const dateB = b.fecha?.toDate ? b.fecha.toDate().getTime() : 0;
+            return dateB - dateA; // Orden descendente (más reciente primero)
+        });
+    
+        setClientes(sortedDocs);
     };
 
     useEffect(() => {
@@ -22,6 +30,14 @@ const Cotizaciones = () => {
 
     return (
         <main className="p-8 flex flex-col gap-8 text-center">
+            <div
+                className="w-full absolute top-0 left-0 md:h-full h-[400px] bg-top bg-no-repeat bg-cover -z-10"
+                style={{
+                    backgroundImage: "url('./img/fondo.png')",
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center'
+                }}
+            />
             <h1 className='text-2xl font-bold'
                 style={{
                     background: 'linear-gradient(to right, #202282, #47C9FF)',
