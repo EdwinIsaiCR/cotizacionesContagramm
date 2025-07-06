@@ -740,7 +740,11 @@ const StepsForm = () => {
                                     { value: "nomina_insourcing", label: "Nómina (Insourcing)" },
                                     { value: "facturacion", label: "Facturación" },
                                     { value: "auditoria", label: "Auditoría" },
-                                    { value: "revision_contable", label: "Revisión Contable" }
+                                    { value: "revision_contable", label: "Revisión Contable" },
+                                    { value: "inventarios", label: "Inventarios" },
+                                    { value: "reclutamiento_seleccion_personal", label: "Reclutamiento o seleccion de personal" },
+                                    { value: "asesoria", label: "Asesoría" },
+                                    { value: "otro", label: "Otro" }
                                 ].map((servicio) => (
                                     <label key={servicio.value} className="flex items-center">
                                         <input
