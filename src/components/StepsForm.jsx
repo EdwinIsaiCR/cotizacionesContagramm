@@ -30,7 +30,7 @@ const SuccessPage = () => {
 
             {/* Contenido principal con márgenes en pantallas grandes */}
             <div className="max-w-4xl w-full mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center">
-                <CheckCircle className="h-20 w-20 text-blue-500 mx-auto mb-6" />
+                <CheckCircle className="h-20 w-20 text-green-500 mx-auto mb-6" />
 
                 <div className="max-w-2xl w-full bg-white rounded-3xl shadow-2xl p-8 text-center">
                     <h1 className='text-2xl sm:text-3xl font-bold uppercase'
@@ -52,9 +52,9 @@ const SuccessPage = () => {
 
                 <button
                     onClick={handleWhatsAppClick}
-                    className='text-blue-500 text-xl sm:text-2xl rounded-2xl py-3 px-6 border-2 border-blue-500 w-full sm:w-64 cursor-pointer flex items-center justify-center gap-3 hover:bg-blue-50 transition-colors mt-8'
+                    className=' text-xl sm:text-2xl rounded-2xl py-3 px-6 border-2 border-green-500 w-full sm:w-64 cursor-pointer flex items-center justify-center gap-3 hover:bg-green-50 transition-colors mt-8'
                 >
-                    <FaWhatsapp className="w-6 h-6" />
+                    <FaWhatsapp className="w-6 h-6 text-green-500" />
                     Contactar
                 </button>
             </div>
@@ -465,35 +465,35 @@ const StepsForm = () => {
                     actions: window.innerWidth < 480 ? 'stacked-buttons' : '', // Stack buttons on small screens
                     container: 'responsive-container'
                 },
+                willOpen: () => {
+                    // Bloquear el scroll del body temporalmente
+                    document.body.style.overflow = 'hidden';
+                },
                 didOpen: (popup) => {
                     // Fix for Safari and Edge mobile scroll
                     const fixMobileScroll = () => {
-                        const scrollContainer = document.querySelector('.scroll-container');
+                        const scrollContainer = popup.querySelector('.scroll-container');
                         if (scrollContainer) {
-                            scrollContainer.scrollTop = 0;
-                            // Prevent default touch behavior only on the scroll container
-                            scrollContainer.addEventListener('touchmove', function (e) {
-                                // Allow the default scrolling to happen within this container
-                                e.stopPropagation();
-                            }, { passive: false });
-
-
-                            // Specifically for iOS Safari
-                            if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+                            // Solución múltiple para diferentes versiones de Safari
+                            const forceScrollToTop = () => {
+                                scrollContainer.scrollTop = 0;
+                                scrollContainer.style.overflow = 'hidden';
+                                setTimeout(() => {
+                                    scrollContainer.style.overflow = 'auto';
+                                    scrollContainer.scrollTop = 0;
+                                }, 100);
+                            };
+                            
+                            forceScrollToTop();
+                            
+                            // Agregar event listener para cambios de tamaño (rotación)
+                            const resizeObserver = new ResizeObserver(forceScrollToTop);
+                            resizeObserver.observe(scrollContainer);
+                            
+                            // Para Safari en iOS
+                            if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
                                 scrollContainer.style.webkitOverflowScrolling = 'touch';
-                                // Add momentum-based scrolling specifically for iOS
-                                const style = document.createElement('style');
-                                style.textContent = `
-                                  .scroll-container::-webkit-scrollbar {
-                                      -webkit-appearance: none;
-                                      width: 7px;
-                                  }
-                                  .scroll-container::-webkit-scrollbar-thumb {
-                                      border-radius: 4px;
-                                      background-color: rgba(0, 0, 0, .3);
-                                  }
-                              `;
-                                document.head.appendChild(style);
+                                setTimeout(forceScrollToTop, 300);
                             }
                         }
                     };
@@ -575,6 +575,10 @@ const StepsForm = () => {
 
                         checkScroll();
                     }
+                },
+                willClose: () => {
+                    // Restaurar el scroll del body
+                    document.body.style.overflow = '';
                 }
             };
         };
@@ -742,7 +746,7 @@ const StepsForm = () => {
                                     { value: "auditoria", label: "Auditoría" },
                                     { value: "revision_contable", label: "Revisión Contable" },
                                     { value: "inventarios", label: "Inventarios" },
-                                    { value: "reclutamiento_seleccion_personal", label: "Reclutamiento o seleccion de personal" },
+                                    { value: "reclutamiento_seleccion_personal", label: "Reclutamiento o selección de personal" },
                                     { value: "asesoria", label: "Asesoría" },
                                     { value: "otro", label: "Otro" }
                                 ].map((servicio) => (
@@ -1735,7 +1739,7 @@ const StepsForm = () => {
                     }}>
                     Registro de Asesoría Contable
                 </h1>
-                <p className="text-gray-600">Completa todos los pasos para obtener tu cotización personalizada</p>
+                <p className="text-gray-600">Completa todos los pasos para obtener tu asesoría y cotización personalizada</p>
             </div>
 
             {/* Desktop/Tablet View */}
