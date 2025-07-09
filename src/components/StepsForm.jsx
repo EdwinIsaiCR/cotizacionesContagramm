@@ -365,10 +365,9 @@ const StepsForm = () => {
 
     // Registrar el campo para validación pero sin usar register en el input
     useEffect(() => {
-        register("auditoriasPorAutoridades", {
-            required: "Selecciona al menos un servicio"
-        });
-    }, [register]);
+        // Forzar scroll al top cuando la ubicación cambia
+        window.scrollTo(0, 0);
+    }, [location.pathname]);
 
     const handleChange = (e) => {
         const { value, checked } = e.target;
