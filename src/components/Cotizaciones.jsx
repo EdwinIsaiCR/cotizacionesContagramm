@@ -86,6 +86,7 @@ const Cotizaciones = () => {
                             <th className="border border-gray-300 px-4 py-3 text-left font-semibold">Creditos Fiscales</th>
                             <th className="border border-gray-300 px-4 py-3 text-left font-semibold">Demanda de algun trabajador</th>
                             <th className="border border-gray-300 px-4 py-3 text-left font-semibold">Actividades Vulnerables</th>
+                            <th className="border border-gray-300 px-4 py-3 text-left font-semibold">Comentarios o dudas</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -133,6 +134,7 @@ const Cotizaciones = () => {
                                 <td className="border border-gray-300 px-4 py-3">{cliente.creditoFiscal}</td>
                                 <td className="border border-gray-300 px-4 py-3">{cliente.demandasTrabajadores}</td>
                                 <td className="border border-gray-300 px-4 py-3">{cliente.actividadesVulnerables}</td>
+                                <td className="border border-gray-300 px-4 py-3">{cliente.comentarios}</td>
                             </tr>
                         ))}
                     </tbody>

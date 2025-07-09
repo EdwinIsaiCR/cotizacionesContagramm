@@ -356,7 +356,7 @@ const StepsForm = () => {
             case 1: return ['nombre', 'telefono', 'email', 'persona', 'representanteLegal', 'domicilio', 'empresa', 'rfc', 'giroEmpresa']
             case 2: return ['cuentasAperturadas', 'tarjetasCredito', 'numeroTarjetas', 'creditosBancarios', 'facturasIngresos', 'facturasProveedores', 'pagoOportunamente', 'obligacionesFiscales', 'auditoriasPorAutoridades', 'manejarContabilidad', 'sistemaContabilidad', 'otroSistema', 'sistemaFacturacion', 'otroSistemaFacturacion', 'papelesTrabajo']
             case 3: return ['areaRecursosHumanos', 'todoPersonalIMSS', 'numeroEmpleadosIMS', 'pagos', 'registradaFONACOT']
-            case 4: return ['creditoFiscal', 'demandasTrabajadores', 'actividadesVulnerables']
+            case 4: return ['creditoFiscal', 'demandasTrabajadores', 'actividadesVulnerables', 'comentarios']
             default: return []
         }
     }
@@ -1718,6 +1718,16 @@ const StepsForm = () => {
                             </div>
                             {errors.actividadesVulnerables && <p className="text-red-500 text-sm mt-1">{errors.actividadesVulnerables.message}</p>}
                         </div>
+                        <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    Comentarios o dudas que desees tratar en la asesoría: 
+                                </label>
+                                <input
+                                    {...register('comentarios')}
+                                    className="w-full px-0 pb-2 border-0 border-b-2 border-blue-200 bg-transparent focus:outline-none focus:border-gray-500 focus:ring-0"
+                                />
+                                {errors.comentarios && <p className="text-red-500 text-sm mt-1">{errors.comentarios.message}</p>}
+                            </div>
                     </div>
                 )
             default:
