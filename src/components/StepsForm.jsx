@@ -1290,8 +1290,7 @@ const StepsForm = () => {
                             <div className="space-y-2">
                                 {[
                                     { value: "contpaqi", label: "CONTPAQi" },
-                                    { value: "aspel_coi", label: "Aspel COI" },
-                                    { value: "contalink", label: "ContaLink" },
+                                    { value: "aspel_facture", label: "Aspel Facture" },
                                 ].map((servicio) => (
                                     <label key={servicio.value} className="flex items-center">
                                         <input
