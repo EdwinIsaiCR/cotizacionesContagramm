@@ -293,6 +293,7 @@ const StepsForm = () => {
     const [isSubmitting, setIsSubmitting] = useState(false)
     const [showSuccessPage, setShowSuccessPage] = useState(false)
     const [alert, setAlert] = useState(null)
+    const [skip, setSkip] = useState(false)
     const {
         register,
         handleSubmit,
@@ -322,24 +323,70 @@ const StepsForm = () => {
         }
     }
 
-    const nextStep = async (e) => {
-        console.log(getValues())
-        e?.preventDefault()
-        const isValid = await trigger(getFieldsForStep(currentStep))
-        console.log(isValid)
-        if (isValid && currentStep < steps.length - 1) {
-            setCurrentStep(currentStep + 1)
-            scrollToForm()
+    const shouldSkipSteps = (selectedServices) => {
+        return (
+          (selectedServices?.includes("inventarios") && 
+           !selectedServices?.some(s => ["contabilidad", "contabilidad_nomina", "facturacion"].includes(s))) ||
+          (selectedServices?.includes("reclutamiento_seleccion_personal") && 
+           !selectedServices?.some(s => ["contabilidad", "contabilidad_nomina", "facturacion"].includes(s)))
+        );
+      };
+
+
+      const validateCurrentSteps = async () => {
+        const selectedServices = getValues("servicios") || [];
+        const skipSteps = shouldSkipSteps(selectedServices);
+      
+        if (skipSteps) {
+          // Solo validar paso 0 y último paso
+          const step0Valid = await trigger(["servicios", "residencia"]);
+          const lastStepValid = await trigger(["comentarios"]); // Ajusta según tu último paso
+          return step0Valid && lastStepValid;
+        } else {
+          // Validar todos los campos normalmente
+          return await trigger();
         }
-    }
+      };
+
+
+    const nextStep = async (e) => {
+        e?.preventDefault();
+        
+        const selectedServices = getValues("servicios") || [];
+        const skipSteps = shouldSkipSteps(selectedServices);
+        
+        // Validar solo los campos relevantes
+        const fieldsToValidate = getFieldsForStep(currentStep);
+        const isValid = await trigger(fieldsToValidate);
+        
+        if (!isValid) return;
+      
+        if (currentStep === 0 && skipSteps) {
+          setCurrentStep(steps.length - 1);
+          setSkip(true)
+        } else if (currentStep < steps.length - 1) {
+          setCurrentStep(currentStep + 1);
+        }
+        
+        scrollToForm();
+      };
 
     const prevStep = (e) => {
-        e?.preventDefault()
-        if (currentStep > 0) {
-            setCurrentStep(currentStep - 1)
-            scrollToForm()
+        e?.preventDefault();
+        
+        const selectedServices = getValues("servicios") || [];
+        
+        // Si estamos en el último paso y se seleccionaron los servicios especiales
+        if (currentStep === steps.length - 1 && shouldSkipSteps(selectedServices)) {
+          setCurrentStep(0); // Volver directamente al primer paso
+        } 
+        // Si no, comportamiento normal
+        else if (currentStep > 0) {
+          setCurrentStep(currentStep - 1);
         }
-    }
+        
+        scrollToForm();
+      };
 
     const scrollToForm = () => {
         setTimeout(() => {
@@ -350,16 +397,36 @@ const StepsForm = () => {
         }, 100)
     }
 
-    const getFieldsForStep = (step) => {
-        switch (step) {
-            case 0: return ['servicios', 'residencia']
-            case 1: return ['nombre', 'telefono', 'email', 'persona', 'representanteLegal', 'domicilio', 'empresa', 'rfc', 'giroEmpresa']
-            case 2: return ['cuentasAperturadas', 'tarjetasCredito', 'numeroTarjetas', 'creditosBancarios', 'facturasIngresos', 'facturasProveedores', 'pagoOportunamente', 'obligacionesFiscales', 'auditoriasPorAutoridades', 'manejarContabilidad', 'sistemaContabilidad', 'otroSistema', 'sistemaFacturacion', 'otroSistemaFacturacion', 'papelesTrabajo']
-            case 3: return ['areaRecursosHumanos', 'todoPersonalIMSS', 'numeroEmpleadosIMS', 'pagos', 'registradaFONACOT']
-            case 4: return ['creditoFiscal', 'demandasTrabajadores', 'actividadesVulnerables', 'comentarios']
-            default: return []
+    const getFieldsForStep = (stepIndex) => {
+        const selectedServices = getValues("servicios") || [];
+        const skipSteps = shouldSkipSteps(selectedServices);
+
+        console.log("datos");
+        
+      
+        if (skipSteps) {
+          // Solo validar campos del paso 0 y del último paso
+          console.log("skipSteps", skipSteps);
+          switch (stepIndex) {
+            case 0: return ['servicios', 'residencia'];
+            case steps.length - 1: return ['comentarios']; // Ajusta según los campos del último paso
+            default: return []; // No validar otros pasos
+          }
+          
+        } else {
+          // Validación normal para todos los pasos
+          console.log("skipSteps", skipSteps);
+          
+          switch (stepIndex) {
+            case 0: return ['servicios', 'residencia'];
+            case 1: return ['nombre', 'telefono', 'email', 'persona', 'representanteLegal', 'domicilio', 'empresa', 'rfc', 'giroEmpresa'];
+            case 2: return ['cuentasAperturadas', 'tarjetasCredito', 'numeroTarjetas', 'creditosBancarios', 'facturasIngresos', 'facturasProveedores', 'pagoOportunamente', 'obligacionesFiscales', 'auditoriasPorAutoridades', 'manejarContabilidad', 'sistemaContabilidad', 'otroSistema', 'sistemaFacturacion', 'otroSistemaFacturacion', 'papelesTrabajo'];
+            case 3: return ['areaRecursosHumanos', 'todoPersonalIMSS', 'numeroEmpleadosIMS', 'pagos', 'registradaFONACOT'];
+            case 4: return ['creditoFiscal', 'demandasTrabajadores', 'actividadesVulnerables', 'comentarios'];
+            default: return [];
+          }
         }
-    }
+      };
 
     const watchedValues = watch("auditoriasPorAutoridades");
 
@@ -482,13 +549,13 @@ const StepsForm = () => {
                                     scrollContainer.scrollTop = 0;
                                 }, 100);
                             };
-                            
+
                             forceScrollToTop();
-                            
+
                             // Agregar event listener para cambios de tamaño (rotación)
                             const resizeObserver = new ResizeObserver(forceScrollToTop);
                             resizeObserver.observe(scrollContainer);
-                            
+
                             // Para Safari en iOS
                             if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
                                 scrollContainer.style.webkitOverflowScrolling = 'touch';
@@ -668,6 +735,9 @@ const StepsForm = () => {
         formData.fecha = fecha
         formData.aceptoPol = aceptoPol
 
+        console.log("formData", formData);
+        
+
         try {
             const docRef = await addDoc(collection(db, "clientes"), formData)
             return { success: true, id: docRef.id }
@@ -677,49 +747,40 @@ const StepsForm = () => {
         }
     }
 
-    const onSubmit = async () => {
-        if (isSubmitting) return
+const onSubmit = async () => {
+  if (isSubmitting) return;
 
-        setIsSubmitting(true)
-        showAlert('info', 'Enviando formulario...', 'Por favor espere...', 0)
+  setIsSubmitting(true);
+  showAlert('info', 'Enviando formulario...', 'Por favor espere...', 0);
 
-        try {
-            // Validación final de todos los campos
-            const isValid = await trigger()
-            if (!isValid) {
-                throw new Error('Por favor complete todos los campos requeridos')
-            }
-
-            const result = await saveDataToFirebase()
-
-            const policiesAccepted = await showPoliciesModal();
-            document.body.style.overflow = '';
-            if (!policiesAccepted) {
-                showAlert('error',
-                    'Error',
-                    'Debes aceptar nuestras políticas de asesoría y privacidad para continuar.'
-                )
-                setIsSubmitting(false)
-                return;
-            }
-
-            setShowSuccessPage(true)
-
-            console.log(getValues())
-            // Resetear formulario después de éxito
-            reset()
-            setCurrentStep(0)
-
-        } catch (error) {
-            console.error('Submission error:', error)
-            showAlert('error',
-                'Error',
-                error.message || 'Ocurrió un error al enviar el formulario. Por favor intente nuevamente.'
-            )
-        } finally {
-            setIsSubmitting(false)
-        }
+  try {
+    const isValid = await validateCurrentSteps();
+    if (!isValid) {
+      throw new Error('Por favor complete los campos requeridos');
     }
+
+    const selectedServices = getValues("servicios") || [];
+    const skipSteps = shouldSkipSteps(selectedServices);
+
+    // Solo mostrar políticas si no son servicios especiales
+    if (!skipSteps) {
+      const policiesAccepted = await showPoliciesModal();
+      if (!policiesAccepted) {
+        throw new Error('Debes aceptar las políticas para continuar');
+      }
+    }
+
+    await saveDataToFirebase();
+    setShowSuccessPage(true);
+    reset();
+    setCurrentStep(0);
+    
+  } catch (error) {
+    showAlert('error', 'Error', error.message);
+  } finally {
+    setIsSubmitting(false);
+  }
+};
 
     // Si se debe mostrar la página de éxito, renderizarla
     if (showSuccessPage) {
@@ -727,6 +788,13 @@ const StepsForm = () => {
     }
 
     const renderStepContent = (stepIndex) => {
+        const selectedServices = getValues("servicios") || [];
+        const skipSteps = shouldSkipSteps(selectedServices);
+      
+        if (skipSteps && stepIndex > 0 && stepIndex < steps.length - 1) {
+          return null; // No renderizar pasos intermedios
+        }
+
         switch (stepIndex) {
             case 0:
                 return (
@@ -744,8 +812,8 @@ const StepsForm = () => {
                                     { value: "facturacion", label: "Facturación" },
                                     { value: "auditoria", label: "Auditoría" },
                                     { value: "revision_contable", label: "Revisión Contable" },
-                                    { value: "inventarios", label: "Inventarios" },
-                                    { value: "reclutamiento_seleccion_personal", label: "Reclutamiento o selección de personal" },
+                                    { value: "inventarios", label: "Inventarios", skipSteps: true },
+                                    { value: "reclutamiento_seleccion_personal", label: "Reclutamiento o selección de personal", skipSteps: true },
                                     { value: "asesoria", label: "Asesoría" },
                                     { value: "otro", label: "Otro" }
                                 ].map((servicio) => (
@@ -758,7 +826,12 @@ const StepsForm = () => {
                                             })}
                                             className="h-4 w-4 text-blue-600 border-gray-300 rounded"
                                         />
-                                        <span className="ml-2 text-gray-700">{servicio.label}</span>
+                                        <span className="ml-2 text-gray-700">
+                                            {servicio.label}
+                                            {servicio.skipSteps && (
+                                                <span className="text-xs text-gray-500 ml-1">(Solo este servicio)</span>
+                                            )}
+                                        </span>
                                     </label>
                                 ))}
                             </div>
@@ -1579,11 +1652,13 @@ const StepsForm = () => {
                 return (
                     <div className="space-y-6">
                         <h3 className="text-xl font-semibold text-gray-800 mb-4">Información Laboral</h3>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                ¿Actualmente la empresa tiene créditos fiscales o revisiones por parte de alguna autoridad o dependencia? (IMSS, INFONAVIT, SECRETARIA DE FINANZAS, ETC)
-                            </label>
-                            <div className="flex items-center space-x-4">
+                        {!skip && (
+                            <>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    ¿Actualmente la empresa tiene créditos fiscales o revisiones por parte de alguna autoridad o dependencia? (IMSS, INFONAVIT, SECRETARIA DE FINANZAS, ETC)
+                                </label>
+                                <div className="flex items-center space-x-4">
                                 <label className="relative inline-flex items-center cursor-pointer">
                                     <input
                                         type="radio"
@@ -1717,16 +1792,18 @@ const StepsForm = () => {
                             </div>
                             {errors.actividadesVulnerables && <p className="text-red-500 text-sm mt-1">{errors.actividadesVulnerables.message}</p>}
                         </div>
+                        </>
+                        )}
                         <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Comentarios o dudas que desees tratar en la asesoría: 
-                                </label>
-                                <input
-                                    {...register('comentarios')}
-                                    className="w-full px-0 pb-2 border-0 border-b-2 border-blue-200 bg-transparent focus:outline-none focus:border-gray-500 focus:ring-0"
-                                />
-                                {errors.comentarios && <p className="text-red-500 text-sm mt-1">{errors.comentarios.message}</p>}
-                            </div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Comentarios o dudas que desees tratar en la asesoría:
+                            </label>
+                            <input
+                                {...register('comentarios')}
+                                className="w-full px-0 pb-2 border-0 border-b-2 border-blue-200 bg-transparent focus:outline-none focus:border-gray-500 focus:ring-0"
+                            />
+                            {errors.comentarios && <p className="text-red-500 text-sm mt-1">{errors.comentarios.message}</p>}
+                        </div>
                     </div>
                 )
             default:
