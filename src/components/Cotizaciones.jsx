@@ -13,7 +13,7 @@ const Cotizaciones = () => {
             id: doc.id,
             ...doc.data(),
         }));
-    
+
         // Ordenar por fecha (de más reciente a más antigua)
         const sortedDocs = docs.sort((a, b) => {
             // Convertir las fechas de Firestore a timestamps para comparar
@@ -21,7 +21,7 @@ const Cotizaciones = () => {
             const dateB = b.fecha?.toDate ? b.fecha.toDate().getTime() : 0;
             return dateB - dateA; // Orden descendente (más reciente primero)
         });
-    
+
         setClientes(sortedDocs);
     };
 
@@ -50,7 +50,7 @@ const Cotizaciones = () => {
             ['Giro de la Empresa', cliente.giroEmpresa || ''],
             ['Cuentas Aperturadas', cliente.cuentasAperturadas || ''],
             ['Tarjetas de Crédito', cliente.tarjetasCredito || ''],
-            ['Número de Tarjetas', cliente.tarjetasCredito == 'si' ? cliente.numeroTarjetas : '/'],
+            ['Número de Tarjetas', cliente.tarjetasCredito == 'si' ? cliente.numeroTarjetas : ''],
             ['Créditos Bancarios', Array.isArray(cliente.creditosBancarios)
                 ? cliente.creditosBancarios.join(", ")
                 : cliente.creditosBancarios || ''],
@@ -75,6 +75,18 @@ const Cotizaciones = () => {
             ['Créditos Fiscales', cliente.creditoFiscal || ''],
             ['Demanda de algún trabajador', cliente.demandasTrabajadores || ''],
             ['Actividades Vulnerables', cliente.actividadesVulnerables || ''],
+            ['Puesto o perfil profesional desea cubrir actualmente en su empresa', cliente.puesto || ''],
+            ['Hace cuánto tiempo se encuentra disponible su vacante', cliente.tiempoVacante || ''],
+            ['El rango salarial que ofrece para este puesto', cliente.rangoSalarial || ''],
+            ['Vacante está contemplada como una posición permanente o temporal', cliente.posicionVacante || ''],
+            ['¿Cuánto tiempo?', cliente.duracion || ''],
+            ['Zona o localidad de Oaxaca se encuentra ubicada su empresa o almacén', cliente.zonaLocalidad || ''],
+            ['Horario de operación', cliente.horarioOperacion || ''],
+            ['El tipo de necesidad sobre inventarios que le gustaría cotizar', cliente.tipoNecesidad || ''],
+            ['Cuenta actualmente con un sistema de control de inventarios', cliente.sistemaControl || ''],
+            ['Nombre del sistema que utiliza', cliente.nombreSistema || ''],
+            ['Cuáles son los principales productos o categorías de artículos que maneja en su almacén', cliente.productos || ''],
+            ['¿Cuántos productos?', cliente.cantidadProductos || ''],
             ['Comentarios o dudas', cliente.comentarios || '']
         ];
 
@@ -93,8 +105,8 @@ const Cotizaciones = () => {
 
         // Generar el nombre del archivo
         const nombreCliente = cliente.nombre || 'Cliente';
-        const fechaFormateada = cliente.fecha?.toDate ? 
-            cliente.fecha.toDate().toLocaleDateString("es-MX").replace(/\//g, '-') : 
+        const fechaFormateada = cliente.fecha?.toDate ?
+            cliente.fecha.toDate().toLocaleDateString("es-MX").replace(/\//g, '-') :
             'sin-fecha';
         const nombreArchivo = `Cotizacion_${nombreCliente}_${fechaFormateada}.xlsx`;
 
@@ -126,46 +138,58 @@ const Cotizaciones = () => {
                 Lista de cotizaciones:
             </h1>
 
-            <div className="overflow-x-auto">
+            <div className="table-container" style={{maxHeight: '80vh', overflowY: 'auto'}}>
                 <table className="w-full border-collapse border border-gray-300 bg-white shadow-lg rounded-lg">
                     <thead>
                         <tr className="bg-gradient-to-r from-blue-600 to-cyan-400 text-white">
-                            <th className="border border-gray-300 px-4 py-3 text-left font-semibold">Acciones</th>
-                            <th className="border border-gray-300 px-4 py-3 text-left font-semibold">Fecha</th>
-                            <th className="border border-gray-300 px-4 py-3 text-left font-semibold">Aceptar Políticas</th>
-                            <th className="border border-gray-300 px-4 py-3 text-left font-semibold">Servicios</th>
-                            <th className="border border-gray-300 px-4 py-3 text-left font-semibold">Residencia</th>
-                            <th className="border border-gray-300 px-4 py-3 text-left font-semibold">Nombre</th>
-                            <th className="border border-gray-300 px-4 py-3 text-left font-semibold">Telefono</th>
-                            <th className="border border-gray-300 px-4 py-3 text-left font-semibold">Email</th>
-                            <th className="border border-gray-300 px-4 py-3 text-left font-semibold">Persona</th>
-                            <th className="border border-gray-300 px-4 py-3 text-left font-semibold">Representante Legal</th>
-                            <th className="border border-gray-300 px-4 py-3 text-left font-semibold">Domicilio</th>
-                            <th className="border border-gray-300 px-4 py-3 text-left font-semibold">Empresa</th>
-                            <th className="border border-gray-300 px-4 py-3 text-left font-semibold">RFC</th>
-                            <th className="border border-gray-300 px-4 py-3 text-left font-semibold">Giro de la Empresa</th>
-                            <th className="border border-gray-300 px-4 py-3 text-left font-semibold">Cuentas Aperturadas</th>
-                            <th className="border border-gray-300 px-4 py-3 text-left font-semibold">Tarjetas de Credito</th>
-                            <th className="border border-gray-300 px-4 py-3 text-left font-semibold">Numero de Tarjetas</th>
-                            <th className="border border-gray-300 px-4 py-3 text-left font-semibold">Creditos Bancarios</th>
-                            <th className="border border-gray-300 px-4 py-3 text-left font-semibold">Facturas Ingresos</th>
-                            <th className="border border-gray-300 px-4 py-3 text-left font-semibold">Facturas Proveedores</th>
-                            <th className="border border-gray-300 px-4 py-3 text-left font-semibold">Pago Oportunamente</th>
-                            <th className="border border-gray-300 px-4 py-3 text-left font-semibold">Obligaciones Fiscales</th>
-                            <th className="border border-gray-300 px-4 py-3 text-left font-semibold">Auditorias Por Autoridades</th>
-                            <th className="border border-gray-300 px-4 py-3 text-left font-semibold">Manejar Contabilidad</th>
-                            <th className="border border-gray-300 px-4 py-3 text-left font-semibold">Sistema Contabilidad</th>
-                            <th className="border border-gray-300 px-4 py-3 text-left font-semibold">Sistema Facturacion</th>
-                            <th className="border border-gray-300 px-4 py-3 text-left font-semibold">Papeles Trabajo</th>
-                            <th className="border border-gray-300 px-4 py-3 text-left font-semibold">Area Recursos Humanos</th>
-                            <th className="border border-gray-300 px-4 py-3 text-left font-semibold">Tiene todo el personal inscritos en el IMSS</th>
-                            <th className="border border-gray-300 px-4 py-3 text-left font-semibold">N° Empleados IMSS inscritos</th>
-                            <th className="border border-gray-300 px-4 py-3 text-left font-semibold">Pagos de nomina</th>
-                            <th className="border border-gray-300 px-4 py-3 text-left font-semibold">Registro FONACOT</th>
-                            <th className="border border-gray-300 px-4 py-3 text-left font-semibold">Creditos Fiscales</th>
-                            <th className="border border-gray-300 px-4 py-3 text-left font-semibold">Demanda de algun trabajador</th>
-                            <th className="border border-gray-300 px-4 py-3 text-left font-semibold">Actividades Vulnerables</th>
-                            <th className="border border-gray-300 px-4 py-3 text-left font-semibold">Comentarios o dudas</th>
+                            <th className="border border-gray-300 px-4 py-3 text-left">Acciones</th>
+                            <th className="border border-gray-300 px-4 py-3 text-left">Fecha</th>
+                            <th className="border border-gray-300 px-4 py-3 text-left">Aceptar Políticas</th>
+                            <th className="border border-gray-300 px-4 py-3 text-left">Servicios</th>
+                            <th className="border border-gray-300 px-4 py-3 text-left">Residencia</th>
+                            <th className="border border-gray-300 px-4 py-3 text-left">Nombre</th>
+                            <th className="border border-gray-300 px-4 py-3 text-left">Telefono</th>
+                            <th className="border border-gray-300 px-4 py-3 text-left">Email</th>
+                            <th className="border border-gray-300 px-4 py-3 text-left">Persona</th>
+                            <th className="border border-gray-300 px-4 py-3 text-left">Representante Legal</th>
+                            <th className="border border-gray-300 px-4 py-3 text-left">Domicilio</th>
+                            <th className="border border-gray-300 px-4 py-3 text-left">Empresa</th>
+                            <th className="border border-gray-300 px-4 py-3 text-left">RFC</th>
+                            <th className="border border-gray-300 px-4 py-3 text-left">Giro de la Empresa</th>
+                            <th className="border border-gray-300 px-4 py-3 text-left">Cuentas Aperturadas</th>
+                            <th className="border border-gray-300 px-4 py-3 text-left">Tarjetas de Credito</th>
+                            <th className="border border-gray-300 px-4 py-3 text-left">Numero de Tarjetas</th>
+                            <th className="border border-gray-300 px-4 py-3 text-left">Creditos Bancarios</th>
+                            <th className="border border-gray-300 px-4 py-3 text-left">Facturas Ingresos</th>
+                            <th className="border border-gray-300 px-4 py-3 text-left">Facturas Proveedores</th>
+                            <th className="border border-gray-300 px-4 py-3 text-left">Pago Oportunamente</th>
+                            <th className="border border-gray-300 px-4 py-3 text-left">Obligaciones Fiscales</th>
+                            <th className="border border-gray-300 px-4 py-3 text-left">Auditorias Por Autoridades</th>
+                            <th className="border border-gray-300 px-4 py-3 text-left">Manejar Contabilidad</th>
+                            <th className="border border-gray-300 px-4 py-3 text-left">Sistema Contabilidad</th>
+                            <th className="border border-gray-300 px-4 py-3 text-left">Sistema Facturacion</th>
+                            <th className="border border-gray-300 px-4 py-3 text-left">Papeles Trabajo</th>
+                            <th className="border border-gray-300 px-4 py-3 text-left">Area Recursos Humanos</th>
+                            <th className="border border-gray-300 px-4 py-3 text-left font-mono text-sm">Tiene todo el personal inscritos en el IMSS</th>
+                            <th className="border border-gray-300 px-4 py-3 text-left">N° Empleados IMSS inscritos</th>
+                            <th className="border border-gray-300 px-4 py-3 text-left">Pagos de nomina</th>
+                            <th className="border border-gray-300 px-4 py-3 text-left">Registro FONACOT</th>
+                            <th className="border border-gray-300 px-4 py-3 text-left">Creditos Fiscales</th>
+                            <th className="border border-gray-300 px-4 py-3 text-left">Demanda de algun trabajador</th>
+                            <th className="border border-gray-300 px-4 py-3 text-left">Actividades Vulnerables</th>
+                            <th className="border border-gray-300 px-4 py-3 text-left font-mono text-sm">Puesto o perfil profesional desea cubrir actualmente en su empresa</th>
+                            <th className="border border-gray-300 px-4 py-3 text-left font-mono text-sm">Hace cuánto tiempo se encuentra disponible su vacante</th>
+                            <th className="border border-gray-300 px-4 py-3 text-left font-mono text-sm">El rango salarial que ofrece para este puesto</th>
+                            <th className="border border-gray-300 px-4 py-3 text-left font-mono text-sm">Vacante está contemplada como una posición permanente o temporal</th>
+                            <th className="border border-gray-300 px-4 py-3 text-left font-mono text-sm">¿Cuánto tiempo?</th>
+                            <th className="border border-gray-300 px-4 py-3 text-left font-mono text-sm">Zona o localidad de Oaxaca se encuentra ubicada su empresa o almacén</th>
+                            <th className="border border-gray-300 px-4 py-3 text-left font-mono text-sm">Horario de operación</th>
+                            <th className="border border-gray-300 px-4 py-3 text-left font-mono text-sm">El tipo de necesidad sobre inventarios que le gustaría cotizar</th>
+                            <th className="border border-gray-300 px-4 py-3 text-left font-mono text-sm">Cuenta actualmente con un sistema de control de inventarios</th>
+                            <th className="border border-gray-300 px-4 py-3 text-left font-mono text-sm">Nombre del sistema que utiliza</th>
+                            <th className="border border-gray-300 px-4 py-3 text-left font-mono text-sm">Cuáles son los principales productos o categorías de artículos que maneja en su almacén</th>
+                            <th className="border border-gray-300 px-4 py-3 text-left">¿Cuántos productos?</th>
+                            <th className="border border-gray-300 px-4 py-3 text-left">Comentarios o dudas</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -233,6 +257,18 @@ const Cotizaciones = () => {
                                 <td className="border border-gray-300 px-4 py-3">{cliente.creditoFiscal}</td>
                                 <td className="border border-gray-300 px-4 py-3">{cliente.demandasTrabajadores}</td>
                                 <td className="border border-gray-300 px-4 py-3">{cliente.actividadesVulnerables}</td>
+                                <td className="border border-gray-300 px-4 py-3">{cliente.puesto}</td>
+                                <td className="border border-gray-300 px-4 py-3">{cliente.tiempoVacante}</td>
+                                <td className="border border-gray-300 px-4 py-3">{cliente.rangoSalarial}</td>
+                                <td className="border border-gray-300 px-4 py-3">{cliente.posicionVacante}</td>
+                                <td className="border border-gray-300 px-4 py-3">{cliente.duracion}</td>
+                                <td className="border border-gray-300 px-4 py-3">{cliente.zonaLocalidad}</td>
+                                <td className="border border-gray-300 px-4 py-3 font-mono text-sm">{cliente.horarioOperacion}</td>
+                                <td className="border border-gray-300 px-4 py-3">{cliente.tipoNecesidad}</td>
+                                <td className="border border-gray-300 px-4 py-3">{cliente.sistemaControl}</td>
+                                <td className="border border-gray-300 px-4 py-3">{cliente.nombreSistema}</td>
+                                <td className="border border-gray-300 px-4 py-3">{cliente.productos}</td>
+                                <td className="border border-gray-300 px-4 py-3">{cliente.cantidadProductos}</td>
                                 <td className="border border-gray-300 px-4 py-3">{cliente.comentarios}</td>
                             </tr>
                         ))}

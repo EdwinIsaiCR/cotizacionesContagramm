@@ -294,6 +294,8 @@ const StepsForm = () => {
     const [showSuccessPage, setShowSuccessPage] = useState(false)
     const [alert, setAlert] = useState(null)
     const [skip, setSkip] = useState(false)
+    const [appear1, setAppear1] = useState(false)
+    const [appear2, setAppear2] = useState(false)
     const {
         register,
         handleSubmit,
@@ -325,68 +327,72 @@ const StepsForm = () => {
 
     const shouldSkipSteps = (selectedServices) => {
         return (
-          (selectedServices?.includes("inventarios") && 
-           !selectedServices?.some(s => ["contabilidad", "contabilidad_nomina", "facturacion"].includes(s))) ||
-          (selectedServices?.includes("reclutamiento_seleccion_personal") && 
-           !selectedServices?.some(s => ["contabilidad", "contabilidad_nomina", "facturacion"].includes(s)))
+            (selectedServices?.includes("inventarios") &&
+                !selectedServices?.some(s => ["contabilidad", "contabilidad_nomina", "facturacion"].includes(s))) ||
+            (selectedServices?.includes("reclutamiento_seleccion_personal") &&
+                !selectedServices?.some(s => ["contabilidad", "contabilidad_nomina", "facturacion"].includes(s)))
         );
-      };
+    };
 
 
-      const validateCurrentSteps = async () => {
+    const validateCurrentSteps = async () => {
         const selectedServices = getValues("servicios") || [];
         const skipSteps = shouldSkipSteps(selectedServices);
-      
+
         if (skipSteps) {
-          // Solo validar paso 0 y último paso
-          const step0Valid = await trigger(["servicios", "residencia"]);
-          const lastStepValid = await trigger(["comentarios"]); // Ajusta según tu último paso
-          return step0Valid && lastStepValid;
+            // Solo validar paso 0 y último paso
+            const step0Valid = await trigger(["servicios", "residencia"]);
+            const step1Valid = await trigger(["nombre", "telefono", "email", "persona", "representanteLegal", "domicilio", "empresa", "rfc", "giroEmpresa"]);
+            const lastStepValid = await trigger(["comentarios"]); // Ajusta según tu último paso
+            return step0Valid && step1Valid && lastStepValid;
         } else {
-          // Validar todos los campos normalmente
-          return await trigger();
+            // Validar todos los campos normalmente
+            return await trigger();
         }
-      };
+    };
 
 
     const nextStep = async (e) => {
         e?.preventDefault();
-        
+
         const selectedServices = getValues("servicios") || [];
         const skipSteps = shouldSkipSteps(selectedServices);
-        
+
         // Validar solo los campos relevantes
         const fieldsToValidate = getFieldsForStep(currentStep);
         const isValid = await trigger(fieldsToValidate);
-        
+
         if (!isValid) return;
-      
-        if (currentStep === 0 && skipSteps) {
-          setCurrentStep(steps.length - 1);
-          setSkip(true)
+
+        if (currentStep === 1 && skipSteps) {
+            setCurrentStep(steps.length - 1);
+            selectedServices.includes("reclutamiento_seleccion_personal") ? setAppear1(true) : setAppear2(true);
+            setSkip(true)
         } else if (currentStep < steps.length - 1) {
-          setCurrentStep(currentStep + 1);
+            setSkip(false)
+            selectedServices.includes("reclutamiento_seleccion_personal") ? setAppear1(false) : setAppear2(false);
+            setCurrentStep(currentStep + 1);
         }
-        
+
         scrollToForm();
-      };
+    };
 
     const prevStep = (e) => {
         e?.preventDefault();
-        
+
         const selectedServices = getValues("servicios") || [];
-        
+
         // Si estamos en el último paso y se seleccionaron los servicios especiales
         if (currentStep === steps.length - 1 && shouldSkipSteps(selectedServices)) {
-          setCurrentStep(0); // Volver directamente al primer paso
-        } 
+            setCurrentStep(1); // Volver directamente al primer paso
+        }
         // Si no, comportamiento normal
         else if (currentStep > 0) {
-          setCurrentStep(currentStep - 1);
+            setCurrentStep(currentStep - 1);
         }
-        
+
         scrollToForm();
-      };
+    };
 
     const scrollToForm = () => {
         setTimeout(() => {
@@ -402,39 +408,33 @@ const StepsForm = () => {
         const skipSteps = shouldSkipSteps(selectedServices);
 
         console.log("datos");
-        
-      
+
+
         if (skipSteps) {
-          // Solo validar campos del paso 0 y del último paso
-          console.log("skipSteps", skipSteps);
-          switch (stepIndex) {
-            case 0: return ['servicios', 'residencia'];
-            case steps.length - 1: return ['comentarios']; // Ajusta según los campos del último paso
-            default: return []; // No validar otros pasos
-          }
-          
+            // Solo validar campos del paso 0, 1 y del último paso
+            console.log("skipSteps", skipSteps);
+            switch (stepIndex) {
+                case 0: return ['servicios', 'residencia'];
+                case 1: return ['nombre', 'telefono', 'email', 'persona', 'representanteLegal', 'domicilio', 'empresa', 'rfc', 'giroEmpresa'];
+                case steps.length - 1: return ['comentarios']; // Ajusta según los campos del último paso
+                default: return []; // No validar otros pasos
+            }
+
         } else {
-          // Validación normal para todos los pasos
-          console.log("skipSteps", skipSteps);
-          
-          switch (stepIndex) {
-            case 0: return ['servicios', 'residencia'];
-            case 1: return ['nombre', 'telefono', 'email', 'persona', 'representanteLegal', 'domicilio', 'empresa', 'rfc', 'giroEmpresa'];
-            case 2: return ['cuentasAperturadas', 'tarjetasCredito', 'numeroTarjetas', 'creditosBancarios', 'facturasIngresos', 'facturasProveedores', 'pagoOportunamente', 'obligacionesFiscales', 'auditoriasPorAutoridades', 'manejarContabilidad', 'sistemaContabilidad', 'otroSistema', 'sistemaFacturacion', 'otroSistemaFacturacion', 'papelesTrabajo'];
-            case 3: return ['areaRecursosHumanos', 'todoPersonalIMSS', 'numeroEmpleadosIMS', 'pagos', 'registradaFONACOT'];
-            case 4: return ['creditoFiscal', 'demandasTrabajadores', 'actividadesVulnerables', 'comentarios'];
-            default: return [];
-          }
+            // Validación normal para todos los pasos
+            console.log("skipSteps", skipSteps);
+
+            switch (stepIndex) {
+                case 0: return ['servicios', 'residencia'];
+                case 1: return ['nombre', 'telefono', 'email', 'persona', 'representanteLegal', 'domicilio', 'empresa', 'rfc', 'giroEmpresa'];
+                case 2: return ['cuentasAperturadas', 'tarjetasCredito', 'numeroTarjetas', 'creditosBancarios', 'facturasIngresos', 'facturasProveedores', 'pagoOportunamente', 'obligacionesFiscales', 'auditoriasPorAutoridades', 'manejarContabilidad', 'sistemaContabilidad', 'otroSistema', 'sistemaFacturacion', 'otroSistemaFacturacion', 'papelesTrabajo'];
+                case 3: return ['areaRecursosHumanos', 'todoPersonalIMSS', 'numeroEmpleadosIMS', 'pagos', 'registradaFONACOT'];
+                case 4: return ['creditoFiscal', 'demandasTrabajadores', 'actividadesVulnerables', 'comentarios'];
+                default: return [];
+            }
         }
-      };
+    };
 
-    const watchedValues = watch("auditoriasPorAutoridades");
-
-    // Registrar el campo para validación pero sin usar register en el input
-    useEffect(() => {
-        // Forzar scroll al top cuando la ubicación cambia
-        window.scrollTo(0, 0);
-    }, [location.pathname]);
 
     const handleChange = (e) => {
         const { value, checked } = e.target;
@@ -736,7 +736,7 @@ const StepsForm = () => {
         formData.aceptoPol = aceptoPol
 
         console.log("formData", formData);
-        
+
 
         try {
             const docRef = await addDoc(collection(db, "clientes"), formData)
@@ -747,40 +747,34 @@ const StepsForm = () => {
         }
     }
 
-const onSubmit = async () => {
-  if (isSubmitting) return;
+    const onSubmit = async () => {
+        if (isSubmitting) return;
 
-  setIsSubmitting(true);
-  showAlert('info', 'Enviando formulario...', 'Por favor espere...', 0);
+        setIsSubmitting(true);
+        showAlert('info', 'Enviando formulario...', 'Por favor espere...', 0);
 
-  try {
-    const isValid = await validateCurrentSteps();
-    if (!isValid) {
-      throw new Error('Por favor complete los campos requeridos');
-    }
+        try {
+            const isValid = await validateCurrentSteps();
+            if (!isValid) {
+                throw new Error('Por favor complete los campos requeridos');
+            }
 
-    const selectedServices = getValues("servicios") || [];
-    const skipSteps = shouldSkipSteps(selectedServices);
+            const policiesAccepted = await showPoliciesModal();
+            if (!policiesAccepted) {
+                throw new Error('Debes aceptar las políticas para continuar');
+            }
 
-    // Solo mostrar políticas si no son servicios especiales
-    if (!skipSteps) {
-      const policiesAccepted = await showPoliciesModal();
-      if (!policiesAccepted) {
-        throw new Error('Debes aceptar las políticas para continuar');
-      }
-    }
+            await saveDataToFirebase();
+            setShowSuccessPage(true);
+            reset();
+            setCurrentStep(0);
 
-    await saveDataToFirebase();
-    setShowSuccessPage(true);
-    reset();
-    setCurrentStep(0);
-    
-  } catch (error) {
-    showAlert('error', 'Error', error.message);
-  } finally {
-    setIsSubmitting(false);
-  }
-};
+        } catch (error) {
+            showAlert('error', 'Error', error.message);
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
 
     // Si se debe mostrar la página de éxito, renderizarla
     if (showSuccessPage) {
@@ -790,9 +784,9 @@ const onSubmit = async () => {
     const renderStepContent = (stepIndex) => {
         const selectedServices = getValues("servicios") || [];
         const skipSteps = shouldSkipSteps(selectedServices);
-      
-        if (skipSteps && stepIndex > 0 && stepIndex < steps.length - 1) {
-          return null; // No renderizar pasos intermedios
+
+        if (skipSteps && stepIndex > 1 && stepIndex < steps.length - 1) {
+            return null; // No renderizar pasos intermedios
         }
 
         switch (stepIndex) {
@@ -1260,8 +1254,9 @@ const onSubmit = async () => {
                                         <input
                                             type="checkbox"
                                             value={servicio.value}
-                                            checked={watchedValues?.includes(servicio.value) || false}
-                                            onChange={handleChange}
+                                            {...register("auditoriasPorAutoridades", {
+                                                required: "Selecciona al menos un servicio"
+                                            })}
                                             className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                                         />
                                         <span className="ml-2 text-gray-700">{servicio.label}</span>
@@ -1654,145 +1649,389 @@ const onSubmit = async () => {
                         <h3 className="text-xl font-semibold text-gray-800 mb-4">Información Laboral</h3>
                         {!skip && (
                             <>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    ¿Actualmente la empresa tiene créditos fiscales o revisiones por parte de alguna autoridad o dependencia? (IMSS, INFONAVIT, SECRETARIA DE FINANZAS, ETC)
-                                </label>
-                                <div className="flex items-center space-x-4">
-                                <label className="relative inline-flex items-center cursor-pointer">
-                                    <input
-                                        type="radio"
-                                        value="si"
-                                        {...register('creditoFiscal', { required: 'Esta selección es requerida' })}
-                                        className="sr-only"
-                                    />
-                                    <div className={`w-16 h-8 rounded-full border-2 flex items-center justify-center relative transition-colors duration-200 ${watch('creditoFiscal') === 'si'
-                                        ? 'bg-blue-600 border-blue-600'
-                                        : 'border-blue-300'
-                                        }`}>
-                                        <span className={`text-xs font-medium ${watch('creditoFiscal') === 'si'
-                                            ? 'text-white'
-                                            : 'text-gray-700'
-                                            }`}>
-                                            Sí
-                                        </span>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        ¿Actualmente la empresa tiene créditos fiscales o revisiones por parte de alguna autoridad o dependencia? (IMSS, INFONAVIT, SECRETARIA DE FINANZAS, ETC)
+                                    </label>
+                                    <div className="flex items-center space-x-4">
+                                        <label className="relative inline-flex items-center cursor-pointer">
+                                            <input
+                                                type="radio"
+                                                value="si"
+                                                {...register('creditoFiscal', { required: 'Esta selección es requerida' })}
+                                                className="sr-only"
+                                            />
+                                            <div className={`w-16 h-8 rounded-full border-2 flex items-center justify-center relative transition-colors duration-200 ${watch('creditoFiscal') === 'si'
+                                                ? 'bg-blue-600 border-blue-600'
+                                                : 'border-blue-300'
+                                                }`}>
+                                                <span className={`text-xs font-medium ${watch('creditoFiscal') === 'si'
+                                                    ? 'text-white'
+                                                    : 'text-gray-700'
+                                                    }`}>
+                                                    Sí
+                                                </span>
+                                            </div>
+                                        </label>
+                                        <label className="relative inline-flex items-center cursor-pointer">
+                                            <input
+                                                type="radio"
+                                                value="no"
+                                                {...register('creditoFiscal')}
+                                                className="sr-only"
+                                            />
+                                            <div className={`w-16 h-8 rounded-full border-2 flex items-center justify-center relative transition-colors duration-200 ${watch('creditoFiscal') === 'no'
+                                                ? 'bg-blue-600 border-blue-600'
+                                                : 'border-blue-300'
+                                                }`}>
+                                                <span className={`text-xs font-medium ${watch('creditoFiscal') === 'no'
+                                                    ? 'text-white'
+                                                    : 'text-gray-700'
+                                                    }`}>
+                                                    No
+                                                </span>
+                                            </div>
+                                        </label>
                                     </div>
-                                </label>
-                                <label className="relative inline-flex items-center cursor-pointer">
-                                    <input
-                                        type="radio"
-                                        value="no"
-                                        {...register('creditoFiscal')}
-                                        className="sr-only"
-                                    />
-                                    <div className={`w-16 h-8 rounded-full border-2 flex items-center justify-center relative transition-colors duration-200 ${watch('creditoFiscal') === 'no'
-                                        ? 'bg-blue-600 border-blue-600'
-                                        : 'border-blue-300'
-                                        }`}>
-                                        <span className={`text-xs font-medium ${watch('creditoFiscal') === 'no'
-                                            ? 'text-white'
-                                            : 'text-gray-700'
-                                            }`}>
-                                            No
-                                        </span>
+                                    {errors.creditoFiscal && <p className="text-red-500 text-sm mt-1">{errors.creditoFiscal.message}</p>}
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        ¿Cuenta con alguna demanda de algún trabajador?
+                                    </label>
+                                    <div className="flex items-center space-x-4">
+                                        <label className="relative inline-flex items-center cursor-pointer">
+                                            <input
+                                                type="radio"
+                                                value="si"
+                                                {...register('demandasTrabajadores', { required: 'Esta selección es requerida' })}
+                                                className="sr-only"
+                                            />
+                                            <div className={`w-16 h-8 rounded-full border-2 flex items-center justify-center relative transition-colors duration-200 ${watch('demandasTrabajadores') === 'si'
+                                                ? 'bg-blue-600 border-blue-600'
+                                                : 'border-blue-300'
+                                                }`}>
+                                                <span className={`text-xs font-medium ${watch('demandasTrabajadores') === 'si'
+                                                    ? 'text-white'
+                                                    : 'text-gray-700'
+                                                    }`}>
+                                                    Sí
+                                                </span>
+                                            </div>
+                                        </label>
+                                        <label className="relative inline-flex items-center cursor-pointer">
+                                            <input
+                                                type="radio"
+                                                value="no"
+                                                {...register('demandasTrabajadores')}
+                                                className="sr-only"
+                                            />
+                                            <div className={`w-16 h-8 rounded-full border-2 flex items-center justify-center relative transition-colors duration-200 ${watch('demandasTrabajadores') === 'no'
+                                                ? 'bg-blue-600 border-blue-600'
+                                                : 'border-blue-300'
+                                                }`}>
+                                                <span className={`text-xs font-medium ${watch('demandasTrabajadores') === 'no'
+                                                    ? 'text-white'
+                                                    : 'text-gray-700'
+                                                    }`}>
+                                                    No
+                                                </span>
+                                            </div>
+                                        </label>
                                     </div>
-                                </label>
-                            </div>
-                            {errors.creditoFiscal && <p className="text-red-500 text-sm mt-1">{errors.creditoFiscal.message}</p>}
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                ¿Cuenta con alguna demanda de algún trabajador?
-                            </label>
-                            <div className="flex items-center space-x-4">
-                                <label className="relative inline-flex items-center cursor-pointer">
-                                    <input
-                                        type="radio"
-                                        value="si"
-                                        {...register('demandasTrabajadores', { required: 'Esta selección es requerida' })}
-                                        className="sr-only"
-                                    />
-                                    <div className={`w-16 h-8 rounded-full border-2 flex items-center justify-center relative transition-colors duration-200 ${watch('demandasTrabajadores') === 'si'
-                                        ? 'bg-blue-600 border-blue-600'
-                                        : 'border-blue-300'
-                                        }`}>
-                                        <span className={`text-xs font-medium ${watch('demandasTrabajadores') === 'si'
-                                            ? 'text-white'
-                                            : 'text-gray-700'
-                                            }`}>
-                                            Sí
-                                        </span>
+                                    {errors.demandasTrabajadores && <p className="text-red-500 text-sm mt-1">{errors.demandasTrabajadores.message}</p>}
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        Realiza Actividades consideradas como vulnerables según la LFPIORPI
+                                    </label>
+                                    <div className="flex items-center space-x-4">
+                                        <label className="relative inline-flex items-center cursor-pointer">
+                                            <input
+                                                type="radio"
+                                                value="si"
+                                                {...register('actividadesVulnerables', { required: 'Esta selección es requerida' })}
+                                                className="sr-only"
+                                            />
+                                            <div className={`w-16 h-8 rounded-full border-2 flex items-center justify-center relative transition-colors duration-200 ${watch('actividadesVulnerables') === 'si'
+                                                ? 'bg-blue-600 border-blue-600'
+                                                : 'border-blue-300'
+                                                }`}>
+                                                <span className={`text-xs font-medium ${watch('actividadesVulnerables') === 'si'
+                                                    ? 'text-white'
+                                                    : 'text-gray-700'
+                                                    }`}>
+                                                    Sí
+                                                </span>
+                                            </div>
+                                        </label>
+                                        <label className="relative inline-flex items-center cursor-pointer">
+                                            <input
+                                                type="radio"
+                                                value="no"
+                                                {...register('actividadesVulnerables')}
+                                                className="sr-only"
+                                            />
+                                            <div className={`w-16 h-8 rounded-full border-2 flex items-center justify-center relative transition-colors duration-200 ${watch('actividadesVulnerables') === 'no'
+                                                ? 'bg-blue-600 border-blue-600'
+                                                : 'border-blue-300'
+                                                }`}>
+                                                <span className={`text-xs font-medium ${watch('actividadesVulnerables') === 'no'
+                                                    ? 'text-white'
+                                                    : 'text-gray-700'
+                                                    }`}>
+                                                    No
+                                                </span>
+                                            </div>
+                                        </label>
                                     </div>
-                                </label>
-                                <label className="relative inline-flex items-center cursor-pointer">
+                                    {errors.actividadesVulnerables && <p className="text-red-500 text-sm mt-1">{errors.actividadesVulnerables.message}</p>}
+                                </div>
+                            </>
+                        )}
+                        {appear1 && (
+                            <>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        ¿Qué puesto o perfil profesional desea cubrir actualmente en su empresa? (Indique el nombre del cargo y una breve descripción de las funciones principales)
+                                    </label>
                                     <input
-                                        type="radio"
-                                        value="no"
-                                        {...register('demandasTrabajadores')}
-                                        className="sr-only"
+                                        {...register('puesto', { required: 'Este campo es requerido' })}
+                                        className="w-full px-0 pb-2 border-0 border-b-2 border-blue-200 bg-transparent focus:outline-none focus:border-gray-500 focus:ring-0"
                                     />
-                                    <div className={`w-16 h-8 rounded-full border-2 flex items-center justify-center relative transition-colors duration-200 ${watch('demandasTrabajadores') === 'no'
-                                        ? 'bg-blue-600 border-blue-600'
-                                        : 'border-blue-300'
-                                        }`}>
-                                        <span className={`text-xs font-medium ${watch('demandasTrabajadores') === 'no'
-                                            ? 'text-white'
-                                            : 'text-gray-700'
-                                            }`}>
-                                            No
-                                        </span>
-                                    </div>
-                                </label>
-                            </div>
-                            {errors.demandasTrabajadores && <p className="text-red-500 text-sm mt-1">{errors.demandasTrabajadores.message}</p>}
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Realiza Actividades consideradas como vulnerables según la LFPIORPI
-                            </label>
-                            <div className="flex items-center space-x-4">
-                                <label className="relative inline-flex items-center cursor-pointer">
+                                    {errors.puesto && <p className="text-red-500 text-sm mt-1">{errors.puesto.message}</p>}
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        ¿Desde hace cuánto tiempo se encuentra disponible su vacante?
+                                    </label>
+                                    <select
+                                        {...register('tiempoVacante', {
+                                            required: 'Este campo es requerido'
+                                        })}
+                                        className="w-full p-2 rounded-3xl text-center border-2 border-blue-200 focus:outline-none focus:border-gray-500 focus:ring-0"
+                                    >
+                                        <option value="">Selecciona una opción</option>
+                                        <option value="una_semana">Una semana</option>
+                                        <option value="mas_de_una_semana">Más de una semana</option>
+                                        <option value="un_mes">Un Mes</option>
+                                        <option value="mas_de_un_mes">Más de un Mes</option>
+                                    </select>
+                                    {errors.tiempoVacante && <p className="text-red-500 text-sm mt-1">{errors.tiempoVacante.message}</p>}
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        ¿Cuál es el rango salarial que ofrece para este puesto?  (Indique el monto neto mensual o semanal)
+                                    </label>
                                     <input
-                                        type="radio"
-                                        value="si"
-                                        {...register('actividadesVulnerables', { required: 'Esta selección es requerida' })}
-                                        className="sr-only"
+                                        {...register('rangoSalarial', { required: 'Este campo es requerido' })}
+                                        className="w-full px-0 pb-2 border-0 border-b-2 border-blue-200 bg-transparent focus:outline-none focus:border-gray-500 focus:ring-0"
                                     />
-                                    <div className={`w-16 h-8 rounded-full border-2 flex items-center justify-center relative transition-colors duration-200 ${watch('actividadesVulnerables') === 'si'
-                                        ? 'bg-blue-600 border-blue-600'
-                                        : 'border-blue-300'
-                                        }`}>
-                                        <span className={`text-xs font-medium ${watch('actividadesVulnerables') === 'si'
-                                            ? 'text-white'
-                                            : 'text-gray-700'
-                                            }`}>
-                                            Sí
-                                        </span>
+                                    {errors.rangoSalarial && <p className="text-red-500 text-sm mt-1">{errors.rangoSalarial.message}</p>}
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        ¿La vacante está contemplada como una posición permanente o temporal?
+                                    </label>
+                                    <div className="space-y-2">
+                                        {[
+                                            { value: "permanente", label: "Permanente" }
+                                        ].map((servicio) => (
+                                            <label key={servicio.value} className="flex items-center">
+                                                <input
+                                                    type="radio"
+                                                    value={servicio.value}
+                                                    {...register("posicionVacante", {
+                                                        required: "Selecciona al menos un servicio"
+                                                    })}
+                                                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                                                />
+                                                <span className="ml-2 text-gray-700">{servicio.label}</span>
+                                            </label>
+                                        ))}
+
+                                        {/* Opción Otro con input a la derecha */}
+                                        <label className="flex items-center">
+                                            <input
+                                                type="radio"
+                                                value="temporal"
+                                                {...register("posicionVacante", {
+                                                    required: "Selecciona al menos un servicio"
+                                                })}
+                                                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                                            />
+                                            <span className="ml-2 text-gray-700 mr-2">Por período determinado:</span>
+                                            <input
+                                                type="text"
+                                                placeholder="Especifica duracion"
+                                                {...register("duracion", {
+                                                    validate: (value) =>
+                                                        watch("posicionVacante") === "temporal"
+                                                            ? value.trim() !== "" || "Especifica duracion"
+                                                            : true,
+                                                })}
+                                                disabled={watch("posicionVacante") !== "temporal"}
+                                                className={`ml-2 w-1/2 text-sm bg-transparent border-0 border-b-2 border-blue-200 ${watch("posicionVacante") === "temporal"
+                                                    ? "focus:border-gray-300 focus:outline-none focus:ring-0"
+                                                    : "border-gray-200 text-gray-400"
+                                                    }`}
+                                            />
+
+                                        </label>
                                     </div>
-                                </label>
-                                <label className="relative inline-flex items-center cursor-pointer">
+
+                                    {errors.posicionVacante && (
+                                        <p className="text-red-500 text-sm mt-1">
+                                            {errors.posicionVacante.message}
+                                        </p>
+                                    )}
+                                    {errors.duracion && (
+                                        <p className="text-red-500 text-sm mt-1">
+                                            {errors.duracion.message}
+                                        </p>
+                                    )}
+                                </div>
+                            </>
+                        )}
+                        {appear2 && (
+                            <>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        ¿En qué zona o localidad de Oaxaca se encuentra ubicada su empresa o almacén?
+                                    </label>
                                     <input
-                                        type="radio"
-                                        value="no"
-                                        {...register('actividadesVulnerables')}
-                                        className="sr-only"
+                                        {...register('zonaLocalidad', { required: 'Este campo es requerido' })}
+                                        className="w-full px-0 pb-2 border-0 border-b-2 border-blue-200 bg-transparent focus:outline-none focus:border-gray-500 focus:ring-0"
                                     />
-                                    <div className={`w-16 h-8 rounded-full border-2 flex items-center justify-center relative transition-colors duration-200 ${watch('actividadesVulnerables') === 'no'
-                                        ? 'bg-blue-600 border-blue-600'
-                                        : 'border-blue-300'
-                                        }`}>
-                                        <span className={`text-xs font-medium ${watch('actividadesVulnerables') === 'no'
-                                            ? 'text-white'
-                                            : 'text-gray-700'
-                                            }`}>
-                                            No
-                                        </span>
+                                    {errors.zonaLocalidad && <p className="text-red-500 text-sm mt-1">{errors.zonaLocalidad.message}</p>}
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        ¿Cuál es su horario de operación? (Por ejemplo: lunes a viernes de 9:00 a 18:00 hrs)
+                                    </label>
+                                    <input
+                                        {...register('horarioOperacion', { required: 'Este campo es requerido' })}
+                                        className="w-full px-0 pb-2 border-0 border-b-2 border-blue-200 bg-transparent focus:outline-none focus:border-gray-500 focus:ring-0"
+                                    />
+                                    {errors.horarioOperacion && <p className="text-red-500 text-sm mt-1">{errors.horarioOperacion.message}</p>}
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        ¿Cuál es el tipo de necesidad sobre inventarios que le gustaría cotizar?
+                                    </label>
+                                    <div className="space-y-2">
+                                        {[
+                                            { value: "levantamiento_inicial", label: "Levantamiento inicial de inventario para implementar un nuevo sistema de control" },
+                                            { value: "inventario_fisico", label: "Inventario físico por cambio de sistema interno" },
+                                            { value: "auditoria_inventario", label: "Auditoría de inventario para confrontar existencias físicas con el sistema actual" },
+                                        ].map((servicio) => (
+                                            <label key={servicio.value} className="flex items-center">
+                                                <input
+                                                    type="radio"
+                                                    value={servicio.value}
+                                                    {...register("tipoNecesidad", {
+                                                        required: "Selecciona al menos un servicio"
+                                                    })}
+                                                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                                                />
+                                                <span className="ml-2 text-gray-700">{servicio.label}</span>
+                                            </label>
+                                        ))}
                                     </div>
-                                </label>
-                            </div>
-                            {errors.actividadesVulnerables && <p className="text-red-500 text-sm mt-1">{errors.actividadesVulnerables.message}</p>}
-                        </div>
-                        </>
+
+                                    {errors.tipoNecesidad && (
+                                        <p className="text-red-500 text-sm mt-1">
+                                            {errors.tipoNecesidad.message}
+                                        </p>
+                                    )}
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        ¿Cuenta actualmente con un sistema de control de inventarios?
+                                    </label>
+                                    <div className="flex items-center space-x-4">
+                                        <label className="relative inline-flex items-center cursor-pointer">
+                                            <input
+                                                type="radio"
+                                                value="si"
+                                                {...register('sistemaControl', { required: 'Esta selección es requerida' })}
+                                                className="sr-only"
+                                            />
+                                            <div className={`w-24 h-8 rounded-full border-2 flex items-center justify-center relative transition-colors duration-200 ${watch('sistemaControl') === 'si'
+                                                ? 'bg-blue-600 border-blue-600'
+                                                : 'border-blue-300'
+                                                }`}>
+                                                <span className={`text-xs font-medium ${watch('sistemaControl') === 'si'
+                                                    ? 'text-white'
+                                                    : 'text-gray-700'
+                                                    }`}>
+                                                    Sí
+                                                </span>
+                                            </div>
+                                        </label>
+
+                                        <label className="relative inline-flex items-center cursor-pointer">
+                                            <input
+                                                type="radio"
+                                                value="no"
+                                                {...register('sistemaControl')}
+                                                className="sr-only"
+                                            />
+                                            <div className={`w-24 h-8 rounded-full border-2 flex items-center justify-center relative transition-colors duration-200 ${watch('sistemaControl') === 'no'
+                                                ? 'bg-blue-600 border-blue-600'
+                                                : 'border-blue-300'
+                                                }`}>
+                                                <span className={`text-xs font-medium ${watch('sistemaControl') === 'no'
+                                                    ? 'text-white'
+                                                    : 'text-gray-700'
+                                                    }`}>
+                                                    No
+                                                </span>
+                                            </div>
+                                        </label>
+                                    </div>
+
+                                    {errors.sistemaControl && (
+                                        <p className="text-red-500 text-sm mt-1">{errors.sistemaControl.message}</p>
+                                    )}
+
+                                    {watch('sistemaControl') === 'si' && (
+                                        <div className="mt-4">
+                                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                                Indique el nombre del sistema que utiliza:
+                                            </label>
+                                            <input
+                                                {...register('nombreSistema', { required: 'El nombre del sistema es requerido' })}
+                                                className="w-full px-0 pb-2 border-0 border-b-2 border-blue-200 bg-transparent focus:outline-none focus:border-gray-500 focus:ring-0"
+                                            />
+                                            {errors.nombreSistema && (
+                                                <p className="text-red-500 text-sm mt-1">{errors.nombreSistema.message}</p>
+                                            )}
+                                        </div>
+                                    )}
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        ¿Cuáles son los principales productos o categorías de artículos que maneja en su almacén?
+                                    </label>
+                                    <input
+                                        {...register('productos', { required: 'Los productos son requeridos' })}
+                                        className="w-full px-0 pb-2 border-0 border-b-2 border-blue-200 bg-transparent focus:outline-none focus:border-gray-500 focus:ring-0"
+                                    />
+                                    {errors.productos && <p className="text-red-500 text-sm mt-1">{errors.productos.message}</p>}
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        ¿Cuántos productos (aproximadamente) conforman su catálogo o inventario?
+                                    </label>
+                                    <input
+                                    type="number"
+                                        {...register('cantidadProductos', { required: 'La cantidad de productos es requerida' })}
+                                        className="w-full px-0 pb-2 border-0 border-b-2 border-blue-200 bg-transparent focus:outline-none focus:border-gray-500 focus:ring-0"
+                                    />
+                                    {errors.cantidadProductos && <p className="text-red-500 text-sm mt-1">{errors.cantidadProductos.message}</p>}
+                                </div>
+                            </>
                         )}
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-2">
