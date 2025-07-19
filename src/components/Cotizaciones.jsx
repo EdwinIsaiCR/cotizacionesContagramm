@@ -82,7 +82,9 @@ const Cotizaciones = () => {
             ['¿Cuánto tiempo?', cliente.duracion || ''],
             ['Zona o localidad de Oaxaca se encuentra ubicada su empresa o almacén', cliente.zonaLocalidad || ''],
             ['Horario de operación', cliente.horarioOperacion || ''],
-            ['El tipo de necesidad sobre inventarios que le gustaría cotizar', cliente.tipoNecesidad || ''],
+            ['El tipo de necesidad sobre inventarios que le gustaría cotizar', Array.isArray(cliente.tipoNecesidad)
+                ? cliente.tipoNecesidad.join(", ")
+                : cliente.tipoNecesidad || ''],
             ['Cuenta actualmente con un sistema de control de inventarios', cliente.sistemaControl || ''],
             ['Nombre del sistema que utiliza', cliente.nombreSistema || ''],
             ['Cuáles son los principales productos o categorías de artículos que maneja en su almacén', cliente.productos || ''],
@@ -264,7 +266,9 @@ const Cotizaciones = () => {
                                 <td className="border border-gray-300 px-4 py-3">{cliente.duracion}</td>
                                 <td className="border border-gray-300 px-4 py-3">{cliente.zonaLocalidad}</td>
                                 <td className="border border-gray-300 px-4 py-3 font-mono text-sm">{cliente.horarioOperacion}</td>
-                                <td className="border border-gray-300 px-4 py-3">{cliente.tipoNecesidad}</td>
+                                <td className="border border-gray-300 px-4 py-3">{Array.isArray(cliente.tipoNecesidad)
+                                    ? cliente.tipoNecesidad.join(", ")
+                                    : cliente.tipoNecesidad || ''}</td>
                                 <td className="border border-gray-300 px-4 py-3">{cliente.sistemaControl}</td>
                                 <td className="border border-gray-300 px-4 py-3">{cliente.nombreSistema}</td>
                                 <td className="border border-gray-300 px-4 py-3">{cliente.productos}</td>

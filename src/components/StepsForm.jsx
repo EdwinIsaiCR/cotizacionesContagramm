@@ -366,11 +366,13 @@ const StepsForm = () => {
 
         if (currentStep === 1 && skipSteps) {
             setCurrentStep(steps.length - 1);
-            selectedServices.includes("reclutamiento_seleccion_personal") ? setAppear1(true) : setAppear2(true);
+            setAppear1(selectedServices.includes("reclutamiento_seleccion_personal"));
+            setAppear2(selectedServices.includes("inventarios"));
             setSkip(true)
         } else if (currentStep < steps.length - 1) {
             setSkip(false)
-            selectedServices.includes("reclutamiento_seleccion_personal") ? setAppear1(false) : setAppear2(false);
+            setAppear1(false);
+            setAppear2(false);
             setCurrentStep(currentStep + 1);
         }
 
@@ -389,6 +391,9 @@ const StepsForm = () => {
         // Si no, comportamiento normal
         else if (currentStep > 0) {
             setCurrentStep(currentStep - 1);
+            setSkip(false)
+            setAppear1(false);
+            setAppear2(false);
         }
 
         scrollToForm();
@@ -1927,7 +1932,7 @@ const StepsForm = () => {
                                         ].map((servicio) => (
                                             <label key={servicio.value} className="flex items-center">
                                                 <input
-                                                    type="radio"
+                                                    type="checkbox"
                                                     value={servicio.value}
                                                     {...register("tipoNecesidad", {
                                                         required: "Selecciona al menos un servicio"
